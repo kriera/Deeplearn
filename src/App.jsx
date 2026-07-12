@@ -1,102 +1,153 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { AnimatePresence, motion } from 'framer-motion'
+import { useSession } from './ui/hooks/useSession.js'
+import { useQuiz } from './ui/hooks/useQuiz.js'
+import { useSrs } from './ui/hooks/useSrs.js'
+import { ConceptEntryPage } from './ui/pages/ConceptEntryPage.jsx'
+import { LevelPage } from './ui/pages/LevelPage.jsx'
+import { QuizPage } from './ui/pages/QuizPage.jsx'
+import { CompletionPage } from './ui/pages/CompletionPage.jsx'
 
-function App() {
-  const [count, setCount] = useState(0)
+const SCREENS = { entry: 'entry', level: 'level', quiz: 'quiz', complete: 'complete' }
+
+export default function App() {
+  const {
+    currentSession,
+    sessions,
+    loading,
+    error,
+    startSession,
+    restoreSession,
+    refreshSession,
+    goToEntry,
+  } = useSession()
+  const { quizResult, submitting, submitQuiz, clearQuizResult } = useQuiz()
+  const { dueCards, rememberCard, forgetCard, addCards } = useSrs()
+  const [screen, setScreen] = useState('entry')
+  const [levelIndex, setLevelIndex] = useState(0)
+
+  const handleStart = async (concept) => {
+    const result = await startSession(concept)
+    if (result) {
+      setLevelIndex(0)
+      setScreen('level')
+    }
+  }
+
+  const handleGoToQuiz = () => {
+    clearQuizResult()
+    setScreen('quiz')
+  }
+
+  const handleSubmitQuiz = async (session, answers) => {
+    const result = await submitQuiz(session, answers)
+    if (result?.passed) {
+      await refreshSession()
+    }
+    return result
+  }
+
+  const handleNextLevel = () => {
+    const next = levelIndex + 1
+    if (next >= 5) {
+      setScreen('complete')
+    } else {
+      setLevelIndex(next)
+      setScreen('level')
+    }
+  }
+
+  const handleGoToEntry = () => {
+    goToEntry()
+    setScreen('entry')
+    setLevelIndex(0)
+  }
+
+  const ScreenComponent = {
+    entry: ConceptEntryPage,
+    level: LevelPage,
+    quiz: QuizPage,
+    complete: CompletionPage,
+  }[screen]
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+    <div className="flex flex-col min-h-screen bg-slate-900">
+      <header className="sticky top-0 z-20 border-b border-slate-800/80 bg-slate-900/80 backdrop-blur-xl">
+        <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+          <button
+            onClick={handleGoToEntry}
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+            aria-label="Go to home"
+          >
+            <span className="text-xl">🧠</span>
+            <span className="font-bold text-white text-sm hidden sm:block">DeepLearn</span>
+          </button>
+          {currentSession && (
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-slate-500 capitalize truncate max-w-[120px]">
+                {currentSession.concept}
+              </span>
+            </div>
+          )}
         </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button type="button" className="counter" onClick={() => setCount((count) => count + 1)}>
-          Count is {count}
-        </button>
-      </section>
+      </header>
 
-      <div className="ticks"></div>
+      <main className="flex-1">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={screen}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+            className="w-full max-w-5xl mx-auto"
+          >
+            {screen === 'entry' && (
+              <ConceptEntryPage
+                onStart={handleStart}
+                sessions={sessions}
+                loading={loading}
+                error={error}
+              />
+            )}
+            {screen === 'level' && (
+              <LevelPage
+                session={currentSession}
+                levelIndex={levelIndex}
+                onGoToQuiz={handleGoToQuiz}
+                onGoToEntry={handleGoToEntry}
+              />
+            )}
+            {screen === 'quiz' && (
+              <QuizPage
+                session={currentSession}
+                levelIndex={levelIndex}
+                onSubmitQuiz={handleSubmitQuiz}
+                quizResult={quizResult}
+                submitting={submitting}
+                onBackToLevel={() => setScreen('level')}
+                onNextLevel={handleNextLevel}
+              />
+            )}
+            {screen === 'complete' && (
+              <CompletionPage
+                session={currentSession}
+                onGoToEntry={handleGoToEntry}
+                onRestart={() => {
+                  setLevelIndex(0)
+                  setScreen('level')
+                }}
+                dueCards={dueCards}
+                onOpenSrs={() => {}}
+              />
+            )}
+          </motion.div>
+        </AnimatePresence>
+      </main>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg className="button-icon" role="presentation" aria-hidden="true">
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg className="button-icon" role="presentation" aria-hidden="true">
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg className="button-icon" role="presentation" aria-hidden="true">
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg className="button-icon" role="presentation" aria-hidden="true">
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+      <footer className="border-t border-slate-800/50 py-4 text-center text-xs text-slate-600">
+        DeepLearn · Feynman Learning Engine · All data stored locally
+      </footer>
+    </div>
   )
 }
-
-export default App
