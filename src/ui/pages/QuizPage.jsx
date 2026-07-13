@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Badge } from '../atoms/Badge.jsx'
 import { Button } from '../atoms/Button.jsx'
+import { BackButton } from '../atoms/BackButton.jsx'
 
 function QuestionCard({ question, index, total, selected, onSelect, submitted, review }) {
   return (
@@ -116,20 +117,7 @@ export function QuizPage({
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-8">
-        <button
-          onClick={onBackToLevel}
-          className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
-          Back to Level
-        </button>
+        <BackButton onClick={onBackToLevel} label="Back to Level" />
         <Badge variant="amber">Level {level.number} Quiz</Badge>
       </div>
 

@@ -2,8 +2,9 @@ import { motion } from 'framer-motion'
 import { Badge } from '../atoms/Badge.jsx'
 import { ProgressBar } from '../atoms/ProgressBar.jsx'
 import { Button } from '../atoms/Button.jsx'
+import { BackButton } from '../atoms/BackButton.jsx'
 
-export function LevelPage({ session, levelIndex, onGoToQuiz, onGoToEntry, onGoToLevel }) {
+export function LevelPage({ session, levelIndex, onGoToQuiz, onGoToEntry }) {
   if (!session) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8">
@@ -23,20 +24,7 @@ export function LevelPage({ session, levelIndex, onGoToQuiz, onGoToEntry, onGoTo
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-8">
-        <button
-          onClick={onGoToEntry}
-          className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
-          Home
-        </button>
+        <BackButton onClick={onGoToEntry} />
         <p className="text-slate-500 text-sm font-medium capitalize truncate max-w-[60%]">
           {session.concept}
         </p>

@@ -9,6 +9,7 @@ import { QuizPage } from './ui/pages/QuizPage.jsx'
 import { CompletionPage } from './ui/pages/CompletionPage.jsx'
 
 const SCREENS = { entry: 'entry', level: 'level', quiz: 'quiz', complete: 'complete' }
+const TOTAL_LEVELS = 5
 
 export default function App() {
   const {
@@ -49,7 +50,7 @@ export default function App() {
 
   const handleNextLevel = () => {
     const next = levelIndex + 1
-    if (next >= 5) {
+    if (next >= TOTAL_LEVELS) {
       setScreen('complete')
     } else {
       setLevelIndex(next)
