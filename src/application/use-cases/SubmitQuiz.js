@@ -16,14 +16,16 @@ function buildAnswerReview(questions, answers) {
   return questions.map((q) => {
     const answer = answers.find((a) => a.questionId === q.id)
     const selectedIndex = answer?.selectedIndex ?? null
-    const correct = selectedIndex === q.correctIndex
+    // Model may return correct_index (snake_case) or correctIndex (camelCase)
+    const correctIdx = q.correctIndex ?? q.correct_index ?? -1
+    const correct = selectedIndex === correctIdx
     return {
       questionId: q.id,
-      question: q.text,
+      question: q.question ?? q.text,
       selectedIndex,
       selectedAnswer: Number.isInteger(selectedIndex) ? q.options[selectedIndex] : '',
-      correctIndex: q.correctIndex,
-      correctAnswer: q.options[q.correctIndex],
+      correctIndex: correctIdx,
+      correctAnswer: q.options[correctIdx],
       explanation: q.explanation,
       correct,
     }
