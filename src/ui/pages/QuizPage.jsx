@@ -85,7 +85,12 @@ export function QuizPage({
   const [submitted, setSubmitted] = useState(false)
 
   const level = session?.levels[levelIndex]
-  const questions = level?.questions || []
+  const rawQuestions = level?.questions || []
+  // Normalize: model may return correct_index (snake_case) or correctIndex (camelCase)
+  const questions = rawQuestions.map((q) => ({
+    ...q,
+    correctIndex: q.correctIndex ?? q.correct_index ?? -1,
+  }))
 
   const handleSelect = (qIndex, optIndex) => {
     setAnswers((prev) => ({ ...prev, [qIndex]: optIndex }))
