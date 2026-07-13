@@ -77,7 +77,7 @@ describe('StartSession', () => {
     expect(result.session.levels[0].explanation).toBe('Test explanation')
     expect(result.session.levels[0].questions).toHaveLength(1)
     expect(aiProvider.generateExplanation).toHaveBeenCalledWith('Test concept', 1)
-    expect(aiProvider.generateQuiz).toHaveBeenCalledWith('Test concept', 1, '')
+    expect(aiProvider.generateQuiz).toHaveBeenCalledWith('Test concept', 1, 'Test explanation')
   })
 
   it('handles AI generation failure gracefully', async () => {

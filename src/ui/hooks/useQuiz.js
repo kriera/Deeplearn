@@ -4,7 +4,7 @@ import { LocalStorageSessionRepository } from '../../infrastructure/storage/repo
 import { AiProviderFactory } from '../../infrastructure/ai/AiProviderFactory.js'
 
 const repo = new LocalStorageSessionRepository()
-const aiProvider = AiProviderFactory.create('ollama-cloud', {
+const aiProvider = AiProviderFactory.create('ollama', {
   baseUrl: 'http://localhost:11434',
   model: 'gpt-oss:120b-cloud',
 })

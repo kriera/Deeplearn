@@ -21,22 +21,22 @@ export class OllamaProvider {
 
   async generateExplanation(concept, levelNumber) {
     const prompt = buildLevelExplanationPrompt(concept, levelNumber)
-    return this._call(prompt, 1200)
+    return this._call(prompt, 3000)
   }
 
   async generateQuiz(concept, levelNumber, explanation) {
     const prompt = buildLevelQuizPrompt(concept, levelNumber, explanation)
-    return this._call(prompt, 2400)
+    return this._call(prompt, 5000)
   }
 
   async generateReExplanation(concept, levelNumber, weakAreas) {
     const prompt = buildReExplainPrompt(concept, levelNumber, weakAreas)
-    return this._call(prompt, 2400)
+    return this._call(prompt, 5000)
   }
 
   async generateSRSCards(concept, levelNumber, levelLabel) {
     const prompt = buildSRSPrompt(concept, levelLabel, levelNumber)
-    return this._call(prompt, 1200)
+    return this._call(prompt, 3000)
   }
 
   async _call(prompt, maxTokens) {
@@ -50,7 +50,7 @@ export class OllamaProvider {
           { role: 'user', content: prompt },
         ],
         stream: false,
-        options: { num_predict: maxTokens },
+        options: { num_predict: maxTokens, thinking: { enabled: false } },
       }),
     })
 
@@ -59,6 +59,14 @@ export class OllamaProvider {
     }
 
     const data = await response.json()
-    return JSON.parse(data?.message?.content || '{}')
+    let content = data?.message?.content || ''
+
+    // Models with thinking mode (gpt-oss, qwen3-coder) put output in
+    // message.thinking and leave message.content empty.
+    if (!content && data?.message?.thinking) {
+      content = data.message.thinking
+    }
+
+    return JSON.parse(content || '{}')
   }
 }

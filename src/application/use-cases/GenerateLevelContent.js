@@ -17,10 +17,9 @@ const GenerateLevelContent = {
     const concept = session.concept
     const levelNumber = level.number
 
-    const [{ explanation }, { questions }] = await Promise.all([
-      aiProvider.generateExplanation(concept, levelNumber),
-      aiProvider.generateQuiz(concept, levelNumber, ''),
-    ])
+    // Generate explanation first, then quiz using that explanation
+    const { explanation } = await aiProvider.generateExplanation(concept, levelNumber)
+    const { questions } = await aiProvider.generateQuiz(concept, levelNumber, explanation)
 
     const updated = Session.setLevelContent(session, levelIndex, { explanation, questions })
     await sessionRepository.save(updated)
