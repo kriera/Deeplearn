@@ -18,12 +18,14 @@ const QUIZ_QUALITY_RULES = [
   'Per-question explanation: restate why the correct answer fits and why one tempting wrong choice fails (1-2 sentences).',
 ]
 
-function detectLanguage(concept, explanation) {
-  // Simple heuristic: if concept or explanation has Spanish characters/words, use Spanish
-  const sample = (concept + ' ' + explanation.slice(0, 200)).toLowerCase()
-  const spanishMarkers = ['á', 'é', 'í', 'ó', 'ú', 'ñ', 'ü', '¿', '¡', ' el ', ' la ', ' los ', ' las ', ' es ', ' una ', ' que ', ' por ', ' del ']
-  const isSpanish = spanishMarkers.some((m) => sample.includes(m))
-  return isSpanish ? 'es' : 'en'
+function detectLanguage(concept) {
+  const sample = concept.toLowerCase()
+  const spanishMarkers = ['á', 'é', 'í', 'ó', 'ú', 'ñ', 'ü', '¿', '¡']
+  const spanishWords = [' el ', ' la ', ' los ', ' las ', ' es ', ' una ', ' que ', ' por ', ' del ']
+  const startsWithArticle = /^(el|la|los|las|un|una|unos|unas)\s/i.test(concept.trim())
+  const hasSpanishChar = spanishMarkers.some((m) => sample.includes(m))
+  const hasSpanishWord = spanishWords.some((w) => sample.includes(w))
+  return (hasSpanishChar || hasSpanishWord || startsWithArticle) ? 'es' : 'en'
 }
 
 const LANG_INSTRUCTIONS = {
@@ -49,7 +51,7 @@ const LANG_INSTRUCTIONS = {
 
 export function buildLevelQuizPrompt(concept, levelNumber, explanation) {
   const level = Level.create(levelNumber)
-  const lang = detectLanguage(concept, explanation)
+  const lang = detectLanguage(concept)
   const t = LANG_INSTRUCTIONS[lang]
 
   return `${t.role} ${t.action} for level ${levelNumber} ("${level.label}") of "${concept}".

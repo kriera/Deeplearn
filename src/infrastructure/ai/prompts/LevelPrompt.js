@@ -8,9 +8,13 @@ import { Level } from '../../../domain/entities/Level.js'
 
 function detectLanguage(concept) {
   const sample = concept.toLowerCase()
-  const spanishMarkers = ['á', 'é', 'í', 'ó', 'ú', 'ñ', 'ü', '¿', '¡', ' el ', ' la ', ' los ', ' las ', ' es ', ' una ', ' que ', ' por ', ' del ']
-  const isSpanish = spanishMarkers.some((m) => sample.includes(m))
-  return isSpanish ? 'es' : 'en'
+  // Match articles at start of string OR surrounded by spaces
+  const spanishMarkers = ['á', 'é', 'í', 'ó', 'ú', 'ñ', 'ü', '¿', '¡']
+  const spanishWords = [' el ', ' la ', ' los ', ' las ', ' es ', ' una ', ' que ', ' por ', ' del ']
+  const startsWithArticle = /^(el|la|los|las|un|una|unos|unas)\s/i.test(concept.trim())
+  const hasSpanishChar = spanishMarkers.some((m) => sample.includes(m))
+  const hasSpanishWord = spanishWords.some((w) => sample.includes(w))
+  return (hasSpanishChar || hasSpanishWord || startsWithArticle) ? 'es' : 'en'
 }
 
 const LANG_INSTRUCTIONS = {
