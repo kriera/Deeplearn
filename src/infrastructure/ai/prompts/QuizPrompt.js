@@ -18,23 +18,54 @@ const QUIZ_QUALITY_RULES = [
   'Per-question explanation: restate why the correct answer fits and why one tempting wrong choice fails (1-2 sentences).',
 ]
 
+function detectLanguage(concept, explanation) {
+  // Simple heuristic: if concept or explanation has Spanish characters/words, use Spanish
+  const sample = (concept + ' ' + explanation.slice(0, 200)).toLowerCase()
+  const spanishMarkers = ['á', 'é', 'í', 'ó', 'ú', 'ñ', 'ü', '¿', '¡', ' el ', ' la ', ' los ', ' las ', ' es ', ' una ', ' que ', ' por ', ' del ']
+  const isSpanish = spanishMarkers.some((m) => sample.includes(m))
+  return isSpanish ? 'es' : 'en'
+}
+
+const LANG_INSTRUCTIONS = {
+  es: {
+    role: 'Eres un motor de aprendizaje Feynman.',
+    action: 'Crea el quiz',
+    contract: 'Contrato del quiz',
+    source: 'Usa SOLO esta explicación como fuente de verdad',
+    rules: 'Reglas de calidad del quiz',
+    json: 'Devuelve SOLO JSON válido',
+    noMarkdown: 'Sin markdown, sin preámbulos, sin bloques de código.',
+  },
+  en: {
+    role: 'You are a Feynman learning engine.',
+    action: 'Create the quiz',
+    contract: 'Level quiz contract',
+    source: 'Use ONLY this explanation as your source of truth',
+    rules: 'Quiz quality rules',
+    json: 'Return ONLY valid JSON',
+    noMarkdown: 'No markdown, no preamble, no code fences.',
+  },
+}
+
 export function buildLevelQuizPrompt(concept, levelNumber, explanation) {
   const level = Level.create(levelNumber)
+  const lang = detectLanguage(concept, explanation)
+  const t = LANG_INSTRUCTIONS[lang]
 
-  return `You are a Feynman learning engine. Create the quiz for level ${levelNumber} ("${level.label}") of "${concept}".
+  return `${t.role} ${t.action} for level ${levelNumber} ("${level.label}") of "${concept}".
 
 Audience: ${level.audience}
-Level quiz contract: ${level.quizRules}
+${t.contract}: ${level.quizRules}
 
-Use ONLY this explanation as your source of truth:
+${t.source}:
 ---
 ${explanation}
 ---
 
-Quiz quality rules:
+${t.rules}:
 ${QUIZ_QUALITY_RULES.map((r, i) => `  ${i + 1}. ${r}`).join('\n')}
 
-Return ONLY valid JSON:
+${t.json}:
 {
   "questions": [
     {
@@ -47,5 +78,5 @@ Return ONLY valid JSON:
     ... (5 total)
   ]
 }
-No markdown, no preamble, no code fences.`
+${t.noMarkdown}`
 }

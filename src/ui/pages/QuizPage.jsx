@@ -17,7 +17,7 @@ function QuestionCard({ question, index, total, selected, onSelect, submitted, r
           Question {index + 1} of {total}
         </Badge>
       </div>
-      <p className="text-white font-medium text-base mb-4">{question.text}</p>
+      <p className="text-white font-medium text-base mb-4">{question.question}</p>
       <div className="grid gap-2">
         {question.options.map((option, optIndex) => {
           let optionClass = 'border-slate-700 bg-slate-800/50 hover:border-slate-500'
