@@ -3,10 +3,12 @@
  *
  * Clean Architecture (Módulo 2): Capa de aplicación, orquesta usando puertos.
  * SRP (Módulo 1): Única responsabilidad: evaluar respuestas y decidir pass/fail.
+ * DIP (Módulo 1): Depende de AiProvider (abstracción) para regenerar contenido.
  * TDD (Módulo 6): Tests escritos antes de la implementación.
  */
 
 import { Session } from '../../domain/entities/Session.js'
+import { GenerateLevelContent } from './GenerateLevelContent.js'
 
 const PASS_THRESHOLD = 4
 
@@ -40,7 +42,7 @@ function findWeakAreas(answerReview) {
 }
 
 const SubmitQuiz = {
-  async execute(session, answers, sessionRepository) {
+  async execute(session, answers, sessionRepository, aiProvider) {
     const level = session.levels[session.currentLevelIndex]
     if (!level.questions || level.questions.length === 0) {
       throw new Error('No questions loaded for this level')
@@ -64,9 +66,39 @@ const SubmitQuiz = {
     let updated = Session.recordAttempt(session, attempt)
 
     let unlockedNextLevel = false
+    let nextLevelContent = null
+    let reExplanation = null
+
     if (passed) {
       updated = Session.unlockNextLevel(updated)
       unlockedNextLevel = updated.levelsUnlocked > session.levelsUnlocked
+
+      // Generate next level content via AI
+      if (unlockedNextLevel && aiProvider) {
+        const nextIndex = session.currentLevelIndex + 1
+        try {
+          updated = await GenerateLevelContent.execute(updated, nextIndex, aiProvider, sessionRepository)
+          nextLevelContent = updated.levels[nextIndex]
+        } catch (err) {
+          const levels = updated.levels.map((l, i) =>
+            i === nextIndex ? { ...l, status: 'error', generationError: err.message } : l,
+          )
+          updated = { ...updated, levels }
+          await sessionRepository.save(updated)
+        }
+      }
+    } else if (aiProvider) {
+      // Generate re-explanation for failed quiz
+      try {
+        const result = await aiProvider.generateReExplanation(
+          session.concept,
+          level.number,
+          weakAreas,
+        )
+        reExplanation = result.explanation
+      } catch {
+        // Re-explanation is optional; don't block on failure
+      }
     }
 
     await sessionRepository.save(updated)
@@ -78,6 +110,8 @@ const SubmitQuiz = {
       answerReview,
       weakAreas,
       unlockedNextLevel,
+      nextLevelContent,
+      reExplanation,
       session: updated,
     }
   },

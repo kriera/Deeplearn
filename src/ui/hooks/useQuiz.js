@@ -1,8 +1,13 @@
 import { useState, useCallback } from 'react'
 import { SubmitQuiz } from '../../application/use-cases/SubmitQuiz.js'
 import { LocalStorageSessionRepository } from '../../infrastructure/storage/repositories/LocalStorageSessionRepository.js'
+import { AiProviderFactory } from '../../infrastructure/ai/AiProviderFactory.js'
 
 const repo = new LocalStorageSessionRepository()
+const aiProvider = AiProviderFactory.create('ollama-cloud', {
+  baseUrl: 'http://localhost:11434',
+  model: 'gpt-oss:120b-cloud',
+})
 
 export function useQuiz() {
   const [quizResult, setQuizResult] = useState(null)
@@ -11,7 +16,7 @@ export function useQuiz() {
   const submitQuiz = useCallback(async (session, answers) => {
     setSubmitting(true)
     try {
-      const result = await SubmitQuiz.execute(session, answers, repo)
+      const result = await SubmitQuiz.execute(session, answers, repo, aiProvider)
       setQuizResult(result)
       return result
     } finally {

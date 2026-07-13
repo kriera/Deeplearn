@@ -14,41 +14,11 @@ describe('SubmitQuiz', () => {
         status: 'ready',
         explanation: 'An explanation about test.',
         questions: [
-          {
-            id: 'q1',
-            text: 'Q1?',
-            options: ['A', 'B', 'C', 'D'],
-            correctIndex: 0,
-            explanation: 'A is correct.',
-          },
-          {
-            id: 'q2',
-            text: 'Q2?',
-            options: ['A', 'B', 'C', 'D'],
-            correctIndex: 1,
-            explanation: 'B is correct.',
-          },
-          {
-            id: 'q3',
-            text: 'Q3?',
-            options: ['A', 'B', 'C', 'D'],
-            correctIndex: 2,
-            explanation: 'C is correct.',
-          },
-          {
-            id: 'q4',
-            text: 'Q4?',
-            options: ['A', 'B', 'C', 'D'],
-            correctIndex: 3,
-            explanation: 'D is correct.',
-          },
-          {
-            id: 'q5',
-            text: 'Q5?',
-            options: ['A', 'B', 'C', 'D'],
-            correctIndex: 0,
-            explanation: 'A is correct.',
-          },
+          { id: 'q1', text: 'Q1?', options: ['A', 'B', 'C', 'D'], correctIndex: 0, explanation: 'A is correct.' },
+          { id: 'q2', text: 'Q2?', options: ['A', 'B', 'C', 'D'], correctIndex: 1, explanation: 'B is correct.' },
+          { id: 'q3', text: 'Q3?', options: ['A', 'B', 'C', 'D'], correctIndex: 2, explanation: 'C is correct.' },
+          { id: 'q4', text: 'Q4?', options: ['A', 'B', 'C', 'D'], correctIndex: 3, explanation: 'D is correct.' },
+          { id: 'q5', text: 'Q5?', options: ['A', 'B', 'C', 'D'], correctIndex: 0, explanation: 'A is correct.' },
         ],
       },
       { number: 2, status: 'locked' },
@@ -58,11 +28,8 @@ describe('SubmitQuiz', () => {
     ],
     attempts: [],
     evaluation: {
-      preScore: null,
-      postScore: null,
-      feedback: '',
-      startedAt: new Date().toISOString(),
-      completedAt: null,
+      preScore: null, postScore: null, feedback: '',
+      startedAt: new Date().toISOString(), completedAt: null,
     },
   }
 
@@ -82,7 +49,7 @@ describe('SubmitQuiz', () => {
     expect(result.score).toBe(5)
     expect(result.total).toBe(5)
     expect(result.unlockedNextLevel).toBe(true)
-    expect(repo.save).toHaveBeenCalledOnce()
+    expect(repo.save).toHaveBeenCalled()
   })
 
   it('fails with 2/5 correct answers and does not unlock next level', async () => {
@@ -145,5 +112,53 @@ describe('SubmitQuiz', () => {
     const result = await SubmitQuiz.execute(baseSession, answers, repo)
     expect(result.answerReview[0].selectedAnswer).toBe('')
     expect(result.answerReview[0].correct).toBe(false)
+  })
+
+  it('generates next level content on pass when aiProvider is passed', async () => {
+    const repo = { save: vi.fn((s) => s) }
+    const aiProvider = {
+      generateExplanation: vi.fn(() => Promise.resolve({ explanation: 'Level 2 explanation' })),
+      generateQuiz: vi.fn(() =>
+        Promise.resolve({
+          questions: [{ id: 'nq1', text: 'NQ?', options: ['X', 'Y'], correctIndex: 0, explanation: 'X' }],
+        }),
+      ),
+    }
+    const answers = [
+      { questionId: 'q1', selectedIndex: 0 },
+      { questionId: 'q2', selectedIndex: 1 },
+      { questionId: 'q3', selectedIndex: 2 },
+      { questionId: 'q4', selectedIndex: 3 },
+      { questionId: 'q5', selectedIndex: 0 },
+    ]
+
+    const result = await SubmitQuiz.execute(baseSession, answers, repo, aiProvider)
+
+    expect(result.passed).toBe(true)
+    expect(result.nextLevelContent).toBeTruthy()
+    expect(result.nextLevelContent.explanation).toBe('Level 2 explanation')
+    expect(aiProvider.generateExplanation).toHaveBeenCalledWith('Test', 2)
+  })
+
+  it('generates re-explanation on fail when aiProvider is passed', async () => {
+    const repo = { save: vi.fn((s) => s) }
+    const aiProvider = {
+      generateReExplanation: vi.fn(() =>
+        Promise.resolve({ explanation: 'Simpler explanation...' }),
+      ),
+    }
+    const answers = [
+      { questionId: 'q1', selectedIndex: 1 },
+      { questionId: 'q2', selectedIndex: 2 },
+      { questionId: 'q3', selectedIndex: 0 },
+      { questionId: 'q4', selectedIndex: 1 },
+      { questionId: 'q5', selectedIndex: 2 },
+    ]
+
+    const result = await SubmitQuiz.execute(baseSession, answers, repo, aiProvider)
+
+    expect(result.passed).toBe(false)
+    expect(result.reExplanation).toBe('Simpler explanation...')
+    expect(aiProvider.generateReExplanation).toHaveBeenCalled()
   })
 })

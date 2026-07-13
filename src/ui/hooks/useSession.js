@@ -1,8 +1,13 @@
 import { useState, useEffect, useCallback } from 'react'
 import { StartSession } from '../../application/use-cases/StartSession.js'
 import { LocalStorageSessionRepository } from '../../infrastructure/storage/repositories/LocalStorageSessionRepository.js'
+import { AiProviderFactory } from '../../infrastructure/ai/AiProviderFactory.js'
 
 const repo = new LocalStorageSessionRepository()
+const aiProvider = AiProviderFactory.create('ollama-cloud', {
+  baseUrl: 'http://localhost:11434',
+  model: 'gpt-oss:120b-cloud',
+})
 
 export function useSession() {
   const [currentSession, setCurrentSession] = useState(null)
@@ -18,7 +23,7 @@ export function useSession() {
     setLoading(true)
     setError(null)
     try {
-      const result = await StartSession.execute(concept, repo)
+      const result = await StartSession.execute(concept, repo, aiProvider)
       setCurrentSession(result.session)
       const all = await repo.findAll()
       setSessions(all)
