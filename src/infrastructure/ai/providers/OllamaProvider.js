@@ -21,22 +21,22 @@ export class OllamaProvider {
 
   async generateExplanation(concept, levelNumber) {
     const prompt = buildLevelExplanationPrompt(concept, levelNumber)
-    return this._call(prompt, 3000)
+    return this._call(prompt, 8000)
   }
 
   async generateQuiz(concept, levelNumber, explanation) {
     const prompt = buildLevelQuizPrompt(concept, levelNumber, explanation)
-    return this._call(prompt, 5000)
+    return this._call(prompt, 12000)
   }
 
   async generateReExplanation(concept, levelNumber, weakAreas) {
     const prompt = buildReExplainPrompt(concept, levelNumber, weakAreas)
-    return this._call(prompt, 5000)
+    return this._call(prompt, 12000)
   }
 
   async generateSRSCards(concept, levelNumber, levelLabel) {
     const prompt = buildSRSPrompt(concept, levelLabel, levelNumber)
-    return this._call(prompt, 3000)
+    return this._call(prompt, 8000)
   }
 
   async _call(prompt, maxTokens) {

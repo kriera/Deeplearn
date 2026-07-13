@@ -44,8 +44,9 @@ function findWeakAreas(answerReview) {
 }
 
 const SubmitQuiz = {
-  async execute(session, answers, sessionRepository, aiProvider) {
-    const level = session.levels[session.currentLevelIndex]
+  async execute(session, answers, levelIndex, sessionRepository, aiProvider) {
+    const idx = levelIndex ?? session.currentLevelIndex
+    const level = session.levels[idx]
     if (!level.questions || level.questions.length === 0) {
       throw new Error('No questions loaded for this level')
     }
@@ -77,7 +78,7 @@ const SubmitQuiz = {
 
       // Generate next level content via AI
       if (unlockedNextLevel && aiProvider) {
-        const nextIndex = session.currentLevelIndex + 1
+        const nextIndex = idx + 1
         try {
           updated = await GenerateLevelContent.execute(updated, nextIndex, aiProvider, sessionRepository)
           nextLevelContent = updated.levels[nextIndex]
