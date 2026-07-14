@@ -1,7 +1,8 @@
 # ADR-002: Ollama Local como AI Provider Principal
 
-**Fecha**: 2026-07-08
-**Estado**: Aceptado
+**Fecha de la decisión**: 2026-07-08 (commit `7c7e3f6`)
+**Redactado en formato completo**: 2026-07-14 (PR #10); actualizado con los budgets vigentes tras el commit `9002775`
+**Estado**: Aceptado — complementado por [ADR-005](005-distribucion-local-first.md) (distribución local-first)
 
 ## Contexto
 
@@ -28,13 +29,15 @@ Elegimos **Ollama Local** como provider principal, con soporte para Anthropic y 
 ## Consecuencias
 
 ### Positivas
+
 - Desarrollo y testing sin coste de API
 - Sin dependencia de servicios externos
 - Modelos cloud accesibles sin API key
 
 ### Negativas
+
 - Thinking mode en modelos gpt-oss/qwen3-coder requiere configuración especial (`thinking: { enabled: false }`)
-- Token budget debe ajustarse por modelo (3000 para explicaciones, 5000 para quizzes)
+- Token budget debe ajustarse por modelo (8000 para explicaciones y re-explicaciones, 12000 para quizzes y tarjetas SRS — valores ampliados en el commit `9002775` al comprobar truncamientos con los iniciales 3000/5000)
 - Latencia variable según carga del servidor Ollama
 
 ## Referencias

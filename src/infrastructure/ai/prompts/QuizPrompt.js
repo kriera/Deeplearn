@@ -5,6 +5,7 @@
  */
 
 import { Level } from '../../../domain/entities/Level.js'
+import { detectLanguage, outputLanguageDirective } from './language.js'
 
 const QUIZ_QUALITY_RULES = [
   'Write exactly 5 distinct multiple-choice questions.',
@@ -17,16 +18,6 @@ const QUIZ_QUALITY_RULES = [
   'Spread correct_index across 0, 1, 2, and 3.',
   'Per-question explanation: restate why the correct answer fits and why one tempting wrong choice fails (1-2 sentences).',
 ]
-
-function detectLanguage(concept) {
-  const sample = concept.toLowerCase()
-  const spanishMarkers = ['á', 'é', 'í', 'ó', 'ú', 'ñ', 'ü', '¿', '¡']
-  const spanishWords = [' el ', ' la ', ' los ', ' las ', ' es ', ' una ', ' que ', ' por ', ' del ']
-  const startsWithArticle = /^(el|la|los|las|un|una|unos|unas)\s/i.test(concept.trim())
-  const hasSpanishChar = spanishMarkers.some((m) => sample.includes(m))
-  const hasSpanishWord = spanishWords.some((w) => sample.includes(w))
-  return (hasSpanishChar || hasSpanishWord || startsWithArticle) ? 'es' : 'en'
-}
 
 const LANG_INSTRUCTIONS = {
   es: {
@@ -80,5 +71,6 @@ ${t.json}:
     ... (5 total)
   ]
 }
-${t.noMarkdown}`
+${t.noMarkdown}
+${outputLanguageDirective(lang)}`
 }

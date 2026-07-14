@@ -14,11 +14,41 @@ describe('SubmitQuiz', () => {
         status: 'ready',
         explanation: 'An explanation about test.',
         questions: [
-          { id: 'q1', text: 'Q1?', options: ['A', 'B', 'C', 'D'], correctIndex: 0, explanation: 'A is correct.' },
-          { id: 'q2', text: 'Q2?', options: ['A', 'B', 'C', 'D'], correctIndex: 1, explanation: 'B is correct.' },
-          { id: 'q3', text: 'Q3?', options: ['A', 'B', 'C', 'D'], correctIndex: 2, explanation: 'C is correct.' },
-          { id: 'q4', text: 'Q4?', options: ['A', 'B', 'C', 'D'], correctIndex: 3, explanation: 'D is correct.' },
-          { id: 'q5', text: 'Q5?', options: ['A', 'B', 'C', 'D'], correctIndex: 0, explanation: 'A is correct.' },
+          {
+            id: 'q1',
+            text: 'Q1?',
+            options: ['A', 'B', 'C', 'D'],
+            correctIndex: 0,
+            explanation: 'A is correct.',
+          },
+          {
+            id: 'q2',
+            text: 'Q2?',
+            options: ['A', 'B', 'C', 'D'],
+            correctIndex: 1,
+            explanation: 'B is correct.',
+          },
+          {
+            id: 'q3',
+            text: 'Q3?',
+            options: ['A', 'B', 'C', 'D'],
+            correctIndex: 2,
+            explanation: 'C is correct.',
+          },
+          {
+            id: 'q4',
+            text: 'Q4?',
+            options: ['A', 'B', 'C', 'D'],
+            correctIndex: 3,
+            explanation: 'D is correct.',
+          },
+          {
+            id: 'q5',
+            text: 'Q5?',
+            options: ['A', 'B', 'C', 'D'],
+            correctIndex: 0,
+            explanation: 'A is correct.',
+          },
         ],
       },
       { number: 2, status: 'locked' },
@@ -28,8 +58,11 @@ describe('SubmitQuiz', () => {
     ],
     attempts: [],
     evaluation: {
-      preScore: null, postScore: null, feedback: '',
-      startedAt: new Date().toISOString(), completedAt: null,
+      preScore: null,
+      postScore: null,
+      feedback: '',
+      startedAt: new Date().toISOString(),
+      completedAt: null,
     },
   }
 
@@ -96,7 +129,9 @@ describe('SubmitQuiz', () => {
       levels: baseSession.levels.map((l, i) => (i === 0 ? { ...l, questions: [] } : l)),
     }
 
-    await expect(SubmitQuiz.execute(noQuestions, [], undefined, repo)).rejects.toThrow('No questions loaded')
+    await expect(SubmitQuiz.execute(noQuestions, [], undefined, repo)).rejects.toThrow(
+      'No questions loaded',
+    )
   })
 
   it('handles answer with null selectedIndex', async () => {
@@ -120,7 +155,9 @@ describe('SubmitQuiz', () => {
       generateExplanation: vi.fn(() => Promise.resolve({ explanation: 'Level 2 explanation' })),
       generateQuiz: vi.fn(() =>
         Promise.resolve({
-          questions: [{ id: 'nq1', text: 'NQ?', options: ['X', 'Y'], correctIndex: 0, explanation: 'X' }],
+          questions: [
+            { id: 'nq1', text: 'NQ?', options: ['X', 'Y'], correctIndex: 0, explanation: 'X' },
+          ],
         }),
       ),
     }
@@ -160,5 +197,76 @@ describe('SubmitQuiz', () => {
     expect(result.passed).toBe(false)
     expect(result.reExplanation).toBe('Simpler explanation...')
     expect(aiProvider.generateReExplanation).toHaveBeenCalled()
+  })
+
+  it('normalizes snake_case correct_index and tolerates questions without index', async () => {
+    const repo = { save: vi.fn((s) => s) }
+    const snakeSession = {
+      ...baseSession,
+      levels: baseSession.levels.map((l, i) =>
+        i === 0
+          ? {
+              ...l,
+              questions: [
+                { id: 'q1', text: 'Q1?', options: ['A', 'B'], correct_index: 1, explanation: 'B.' },
+                { id: 'q2', text: 'Q2?', options: ['A', 'B'], explanation: 'Sin índice.' },
+              ],
+            }
+          : l,
+      ),
+    }
+    const answers = [
+      { questionId: 'q1', selectedIndex: 1 },
+      { questionId: 'q2', selectedIndex: 0 },
+    ]
+
+    const result = await SubmitQuiz.execute(snakeSession, answers, undefined, repo)
+
+    expect(result.answerReview[0].correct).toBe(true)
+    expect(result.answerReview[0].correctIndex).toBe(1)
+    expect(result.answerReview[1].correct).toBe(false)
+    expect(result.answerReview[1].correctIndex).toBe(-1)
+  })
+
+  it('marks next level as error and persists when generation fails on pass', async () => {
+    const repo = { save: vi.fn((s) => s) }
+    const aiProvider = {
+      generateExplanation: vi.fn(() => Promise.reject(new Error('model offline'))),
+    }
+    const answers = [
+      { questionId: 'q1', selectedIndex: 0 },
+      { questionId: 'q2', selectedIndex: 1 },
+      { questionId: 'q3', selectedIndex: 2 },
+      { questionId: 'q4', selectedIndex: 3 },
+      { questionId: 'q5', selectedIndex: 0 },
+    ]
+
+    const result = await SubmitQuiz.execute(baseSession, answers, undefined, repo, aiProvider)
+
+    expect(result.passed).toBe(true)
+    expect(result.unlockedNextLevel).toBe(true)
+    expect(result.nextLevelContent).toBeNull()
+    expect(result.session.levels[1].status).toBe('error')
+    expect(result.session.levels[1].generationError).toBe('model offline')
+    expect(repo.save).toHaveBeenCalled()
+  })
+
+  it('returns null re-explanation when provider fails on fail path', async () => {
+    const repo = { save: vi.fn((s) => s) }
+    const aiProvider = {
+      generateReExplanation: vi.fn(() => Promise.reject(new Error('model offline'))),
+    }
+    const answers = [
+      { questionId: 'q1', selectedIndex: 1 },
+      { questionId: 'q2', selectedIndex: 2 },
+      { questionId: 'q3', selectedIndex: 0 },
+      { questionId: 'q4', selectedIndex: 1 },
+      { questionId: 'q5', selectedIndex: 2 },
+    ]
+
+    const result = await SubmitQuiz.execute(baseSession, answers, undefined, repo, aiProvider)
+
+    expect(result.passed).toBe(false)
+    expect(result.reExplanation).toBeNull()
   })
 })

@@ -5,15 +5,17 @@
  */
 
 import { Level } from '../../../domain/entities/Level.js'
+import { detectLanguage, outputLanguageDirective } from './language.js'
 
 export function buildReExplainPrompt(concept, levelNumber, weakAreas) {
   const level = Level.create(levelNumber)
+  const lang = detectLanguage(concept)
   const summary =
     weakAreas && weakAreas.length > 0
       ? weakAreas.map((w) => `- ${w.question || w}`).join('\n')
       : 'The learner struggled with this level.'
 
-  return `The user failed the "${level.label}" level gate for the concept "${concept}".
+  return `You are a Feynman learning engine. The user failed the "${level.label}" level gate for the concept "${concept}".
 Their struggle summary:
 ${summary}
 
@@ -34,5 +36,6 @@ Return ONLY valid JSON:
     ... (5 total)
   ]
 }
-No markdown, no preamble, no code fences.`
+No markdown, no preamble, no code fences.
+${outputLanguageDirective(lang)}`
 }

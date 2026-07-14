@@ -30,7 +30,7 @@ describe('Button', () => {
     render(<Button loading>Loading</Button>)
     const btn = screen.getByRole('button')
     expect(btn).toBeDisabled()
-    expect(btn.className).toContain('animate-spin')
+    expect(btn).toHaveAttribute('aria-busy', 'true')
   })
 
   it('is disabled when disabled prop is true', () => {

@@ -1,6 +1,7 @@
 # ADR-003: localStorage para Persistencia de Sesiones
 
-**Fecha**: 2026-07-09
+**Fecha de la decisión**: 2026-07-09 (commit `c403da7`)
+**Redactado en formato completo**: 2026-07-14 (PR #10)
 **Estado**: Aceptado
 
 ## Contexto
@@ -28,11 +29,13 @@ Elegimos **localStorage** con Repository Pattern (LocalStorageSessionRepository)
 ## Consecuencias
 
 ### Positivas
+
 - Cero dependencias externas
 - Implementación en ~50 líneas
 - Migrable a IndexedDB/backend sin tocar lógica de negocio
 
 ### Negativas
+
 - Límite de 5-10MB (suficiente para cientos de sesiones)
 - Datos perdidos si el usuario limpia el navegador
 - No hay sincronización multi-dispositivo

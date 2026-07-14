@@ -5,20 +5,11 @@
  */
 
 import { Level } from '../../../domain/entities/Level.js'
-
-function detectLanguage(concept) {
-  const sample = concept.toLowerCase()
-  // Match articles at start of string OR surrounded by spaces
-  const spanishMarkers = ['á', 'é', 'í', 'ó', 'ú', 'ñ', 'ü', '¿', '¡']
-  const spanishWords = [' el ', ' la ', ' los ', ' las ', ' es ', ' una ', ' que ', ' por ', ' del ']
-  const startsWithArticle = /^(el|la|los|las|un|una|unos|unas)\s/i.test(concept.trim())
-  const hasSpanishChar = spanishMarkers.some((m) => sample.includes(m))
-  const hasSpanishWord = spanishWords.some((w) => sample.includes(w))
-  return (hasSpanishChar || hasSpanishWord || startsWithArticle) ? 'es' : 'en'
-}
+import { detectLanguage, outputLanguageDirective } from './language.js'
 
 const LANG_INSTRUCTIONS = {
   es: {
+    role: 'Eres un motor de aprendizaje Feynman.',
     action: 'Genera SOLO una explicación compacta',
     audience: 'Audiencia',
     rules: 'Reglas de explicación',
@@ -32,6 +23,7 @@ const LANG_INSTRUCTIONS = {
     noMarkdown: 'Sin markdown, sin preámbulos, sin bloques de código.',
   },
   en: {
+    role: 'You are a Feynman learning engine.',
     action: 'Generate ONLY a compact level',
     audience: 'Audience',
     rules: 'Explanation rules',
@@ -51,7 +43,7 @@ export function buildLevelExplanationPrompt(concept, levelNumber) {
   const lang = detectLanguage(concept)
   const t = LANG_INSTRUCTIONS[lang]
 
-  return `${t.action} ${levelNumber} ("${level.label}") explanation for "${concept}".
+  return `${t.role} ${t.action} ${levelNumber} ("${level.label}") explanation for "${concept}".
 
 ${t.audience}: ${level.audience}
 ${t.rules}:
@@ -66,5 +58,6 @@ ${t.json}:
   "label": "${level.label}",
   "explanation": string (90-150 words)
 }
-${t.noMarkdown}`
+${t.noMarkdown}
+${outputLanguageDirective(lang)}`
 }

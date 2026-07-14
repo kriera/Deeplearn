@@ -1,97 +1,71 @@
-# DeepLearn — Plan de Sesiones (13-18 Julio 2026)
+# DeepLearn — Plan de Implementación
 
-> **Creado:** 13 Julio 2026, 13:45
-> **Sesión Hermes:** Actual (TUI, deepseek-v4-pro)
-> **Deadline:** 18 Julio 2026
+> **Deadline de entrega del TFM:** 20 Julio 2026 (cierre interno: 18 Julio)
+> **Última actualización:** 14 Julio 2026
 
-## Estado Actual
+## Estado Actual (14 Julio)
 
-- **8 PRs completados** (4-12 Julio)
-- **97/111 tests pasan** (14 fallos UI por compatibilidad React 19.2 + Testing Library)
-- **App funcional** — build exitoso, 4 pantallas + 3 hooks
-- **Criterios SPEC pendientes:** E2E, deploy Vercel, coverage UI 80%, docs, A11Y, CI verde
+- **10 PRs completados** (4-14 Julio)
+- **Suite en verde**: tests unitarios, integración e infraestructura + 3 E2E (Playwright)
+- **App funcional** — build correcto, 4 pantallas + 3 hooks, composition root
+- **Pendiente para la entrega:** repo GitHub público, deploy Vercel con URL, slides, vídeo explicativo
 
 ## PRs Completados
 
-| PR | Fecha | Commit | Capa |
-|----|-------|--------|------|
-| #0 | Jul 4 | `a4c2d6e` | Scaffold: SPEC.md, CI, Husky, ADR-001 |
-| #1 | Jul 5 | `211fc62` | Domain: Level, Question, Session, SrsService (SM-2) |
-| #2 | Jul 7 | `2136aaa` | Application: StartSession, SubmitQuiz, puertos |
-| #3 | Jul 8 | `7c7e3f6` | AI providers: 4 adapters + prompt builders |
-| #4 | Jul 9 | `c403da7` | Storage: Repository Pattern, localStorage + in-memory |
-| #5 | Jul 10 | `a289187` | Serverless proxy + OWASP (rate limiting, validación) |
-| #6 | Jul 12 | `e7c4c58` | UI atoms: Button, Badge, ProgressBar + Tailwind 4 |
-| #7 | Jul 12 | `0bb4d53` | Screens + hooks: app funcional |
+| PR  | Fecha  | Commit    | Capa                                                                  |
+| --- | ------ | --------- | --------------------------------------------------------------------- |
+| #0  | Jul 4  | `a4c2d6e` | Scaffold: SPEC.md, CI, Husky, ADR-001                                 |
+| #1  | Jul 5  | `211fc62` | Domain: Level, Question, Session, SrsService (SM-2)                   |
+| #2  | Jul 7  | `2136aaa` | Application: StartSession, SubmitQuiz, puertos                        |
+| #3  | Jul 8  | `7c7e3f6` | AI providers: 4 adapters + prompt builders                            |
+| #4  | Jul 9  | `c403da7` | Storage: Repository Pattern, localStorage + in-memory                 |
+| #5  | Jul 10 | `a289187` | Serverless proxy + OWASP (rate limiting, validación)                  |
+| #6  | Jul 12 | `e7c4c58` | UI atoms: Button, Badge, ProgressBar + Tailwind 4                     |
+| #7  | Jul 12 | `0bb4d53` | Screens + hooks: app funcional                                        |
+| #8  | Jul 13 | `fca2b25` | E2E, code smells, deuda técnica + integración Ollama (serie de fixes) |
+| #9  | Jul 13 | `5797643` | Deploy Vercel, Sentry, CI/CD auto-deploy                              |
+| #10 | Jul 14 | `0c2f7b5` | Docs, UX, A11Y, skeleton screens, microcopy español                   |
 
-## PRs Planificados
+## Trabajo restante (14-18 Julio)
 
-### PR #8 — Lunes 14 Julio: E2E + Refactor + Code Smells
-
-**Conceptos del máster:**
-- E2E Testing (Módulo 6): Playwright, flujos críticos, CI integration
-- Safe Refactoring (Módulo 6): Red-Green-Refactor, red de seguridad de tests
-- Code Smells (Módulo 6): Detección en UI, SRP violations, duplicación
-- Integration Testing (Módulo 6): Testing Library, roles ARIA, flujos de usuario
-- Deuda Técnica (Módulo 6): Cuantificación, ratio, grep TODO/FIXME
-
-**Referencias:**
-- `~/bigschool_master/extracted_text/Testing/E2E-Asistido-por-IA.txt`
-- `~/bigschool_master/extracted_text/Code Smells Refactor Y Deuda/Refactor-Seguro-con-TDD.txt`
-- `~/bigschool_master/extracted_text/Code Smells Refactor Y Deuda/Detectar-Smells-en-UI.txt`
-- `~/bigschool_master/extracted_text/Testing/Integracion-Front.txt`
-- `~/bigschool_master/extracted_text/Code Smells Refactor Y Deuda/Deuda-Tecnica-Practica.txt`
-
-**Criterio:** CI verde, 100% tests, E2E flujo completo.
-
-### PR #9 — Miércoles 16 Julio: Deploy Vercel + Observabilidad
+### PR #11 — Correcciones de la evaluación interna
 
 **Conceptos del máster:**
-- Cloud Deployment (Módulo 7): Vercel, CLI deploy, time-to-market
-- Observabilidad (Módulo 7): Sentry, monitoreo errores producción
-- Seguridad ENV (Módulo 3): Variables de entorno, secretos
-- CI/CD (Módulo 7): GitHub Actions deploy automático
 
-**Referencias:**
-- `~/bigschool_master/extracted_text/Cloud Computing/Despliegue-aplicaciones-en-el-Cloud-Render-o-Railway.txt`
-- `~/bigschool_master/extracted_text/Observabilidad Con Sentry/Implementacion-de-Sentry.txt`
-- `~/bigschool_master/extracted_text/Seguridad Env Owasp Top 10/Variables-de-Entorno-y-Secretos.txt`
-- `~/bigschool_master/extracted_text/Devops Y Ci Cd/Hola-Mundo-con-Github-Actions.txt`
+- Integración (Módulo 6): tests del cableado hook → caso de uso (bug de firma en `useQuiz` detectado y corregido)
+- Composition Root (Módulo 2): dependencias construidas en el borde, config por entorno
+- A11Y (Módulo 4): contraste AA, `lang="es"`, estados de error visibles con reintento
+- Microcopy (Módulo 4): errores accionables en español, copy unificado
+- Prompt Engineering (Módulo 5): rol + directiva de idioma en los 4 prompts, `detectLanguage` unificado
+- ADR (Módulo 8): ADR-005 distribución local-first; fechas de decisión vs redacción explícitas
 
-**Criterio:** App viva en Vercel, Sentry activo, CI/CD deploy automático.
-
-### PR #10 — Viernes 18 Julio: Documentación + UX Polish + Entrega
+### PR #12 — 15 Julio: SRS funcional + calidad del contenido IA
 
 **Conceptos del máster:**
-- ADR (Módulo 8): Documentar decisiones arquitectónicas
-- Docs as Code (Módulo 8): Documentación viva, versionada
-- Microcopy (Módulo 4): Textos que guían, prompting para copy
-- A11Y (Módulo 4): WCAG, roles ARIA, contraste
-- Performance Percibida (Módulo 4): Skeleton screens, optimistic UI
-- SDD (Módulo 1): Validación final contra spec
 
-**Referencias:**
-- `~/bigschool_master/extracted_text/Documentacion Con Ia/ADR-Documentar-el-porque.txt`
-- `~/bigschool_master/extracted_text/Documentacion Con Ia/Docs-as-Code-Minimal.txt`
-- `~/bigschool_master/extracted_text/Usabilidad/Microcopy-con-IA.txt`
-- `~/bigschool_master/extracted_text/Usabilidad/Heuristicas-Rapidas-A11y.txt`
-- `~/bigschool_master/extracted_text/Usabilidad/Medir-Sensacion-de-Rapidez.txt`
-- `~/bigschool_master/extracted_text/Spec Driven Development/PPT-Introduccion-a-Spec-Driven-Development.txt`
+- YAGNI invertido / deuda saldada (Módulo 6): convertir el código SRS dormido (DT-003) en funcionalidad
+- LLMOps (Módulo 7): evaluations con golden dataset, observabilidad de llamadas al modelo
+- Testing (Módulo 6): tests de contrato de los providers contra el puerto AiProvider (DT-005)
+- Performance (Módulo 4): code-splitting del bundle (DT-007)
 
-**Criterio:** 10 PRs, SPEC 100%, app desplegada, docs completas.
+**Tareas:**
 
-## Perfil de Commit (validado contra histórico)
+1. **SRS mínimo viable (cierra DT-003)**: generar tarjetas al aprobar cada nivel (`generateSRSCards` en el flujo de `SubmitQuiz`), panel de repaso accesible desde CompletionPage con `dueCards` + botones Recordé/Olvidé (`useSrs` ya existe), persistencia en `LocalStorageCardRepository`.
+2. **Golden dataset + evals (cierra parte de DT-008)**: script `npm run eval` con 5-10 conceptos fijos que llama al modelo real y valida el contrato programáticamente (5 preguntas, `correct_index` 0-3 distribuido, 90-150 palabras, idioma correcto). Documentar resultados en `docs/evals.md`.
+3. **Observabilidad LLM (resto de DT-008)**: registrar latencia y tokens por llamada (breadcrumb/`setTag` de Sentry usando `eval_count` de Ollama).
+4. **Tests de contrato de providers (cierra DT-005)**: suite compartida contra el puerto con fetch mockeado; extraer el `_call` duplicado a un helper común.
+5. **Code-splitting (cierra DT-007)**: `dynamic import()` por página o configuración de chunks.
 
-- **Autor:** kriera <kilian.riera@gmail.com>
-- **Prefijo:** `feat:` (o `chore:` solo para scaffold)
-- **Cuerpo:** Conceptos del máster → Archivos creados → Tests → Referencias
-- **Idioma:** Español en cuerpo, inglés en subject
-- **Espaciado:** 1-2 días entre commits
-- **Horario:** Mañana/mediodía (10:00-14:00 CEST)
+### PR #13 — 16-17 Julio: Entrega
 
-## Notas
+- Repo GitHub público + CI verde en Actions (secrets `VERCEL_*` configurados)
+- Deploy Vercel con URL en README (requisito oficial 3)
+- Cobertura UI de páginas: tests de integración de QuizPage/LevelPage con Testing Library + `userEvent`
+- Slides con URL pública + vídeo explicativo con screencast (requisitos oficiales 4-5)
+- Revisión final contra SPEC §8 (criterios de aceptación)
 
-- Las sesiones anteriores de DeepLearn (PR #1-#7) no aparecen en session_search de Hermes
-- Posible causa: cambio de perfil, reseteo de DB, o uso de otro cliente
-- Este archivo es el respaldo físico del plan por si la sesión se pierde
-- Ruta: `~/Projects/deeplearn/docs/PLAN.md`
+## Convenciones de commit
+
+- **Formato:** subject convencional en inglés (`feat:`/`fix:`/`chore:`); cuerpo en español
+- **Cuerpo:** Conceptos del máster aplicados → Archivos → Tests → Referencias
+- **ADRs:** referenciar en el subject cuando aplique, p. ej. `feat: ... (ADR-005)`

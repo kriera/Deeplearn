@@ -1,6 +1,7 @@
 # ADR-001: Clean Architecture + Hexagonal (Ports & Adapters)
 
-**Fecha**: 2026-07-04
+**Fecha de la decisión**: 2026-07-04 (commit `a4c2d6e`; versión inicial en `docs/architecture/ADR-001-clean-hexagonal.md`)
+**Redactado en formato completo**: 2026-07-14 (PR #10)
 **Estado**: Aceptado
 
 ## Contexto
@@ -27,11 +28,13 @@ Elegimos **Clean Architecture + Hexagonal (Ports & Adapters)**.
 ## Consecuencias
 
 ### Positivas
+
 - 100% de cobertura en Domain y Application (JS puro, sin mocks complejos)
 - Cambio de proveedor AI en una línea (AiProviderFactory)
 - Separación clara de responsabilidades
 
 ### Negativas
+
 - Más archivos y directorios que un enfoque monolítico
 - Curva de aprendizaje para desarrolladores nuevos
 - Overhead de abstracción para operaciones simples

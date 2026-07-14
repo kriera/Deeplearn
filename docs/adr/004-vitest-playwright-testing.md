@@ -1,6 +1,7 @@
 # ADR-004: Vitest + Playwright para Estrategia de Testing
 
-**Fecha**: 2026-07-04
+**Fecha de la decisión**: 2026-07-04 (commit `a4c2d6e`)
+**Redactado en formato completo**: 2026-07-14 (PR #10)
 **Estado**: Aceptado
 
 ## Contexto
@@ -27,11 +28,13 @@ Elegimos **Vitest para tests unitarios e integración, Playwright para E2E**.
 ## Consecuencias
 
 ### Positivas
+
 - Tests unitarios rápidos (~2s para 100 tests)
 - E2E en navegadores reales (sin limitaciones de jsdom)
 - Configuración compartida con Vite
 
 ### Negativas
+
 - 14 tests de UI rotos por incompatibilidad React 19.2 + jsdom (documentado como DT-001)
 - Playwright requiere instalar navegadores (~200MB)
 - Dos herramientas que mantener en CI

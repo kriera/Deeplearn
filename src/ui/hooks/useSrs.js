@@ -1,8 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { SrsService } from '../../domain/services/SrsService.js'
-import { LocalStorageCardRepository } from '../../infrastructure/storage/repositories/LocalStorageCardRepository.js'
-
-const cardRepo = new LocalStorageCardRepository()
+import { cardRepository as cardRepo } from '../../composition/container.js'
 
 export function useSrs() {
   const [cards, setCards] = useState([])

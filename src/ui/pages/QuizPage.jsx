@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Badge } from '../atoms/Badge.jsx'
 import { Button } from '../atoms/Button.jsx'
 import { BackButton } from '../atoms/BackButton.jsx'
+import { levelLabel } from '../i18n/levelLabels.js'
 
 function QuestionCard({ question, index, total, selected, onSelect, submitted, review }) {
   return (
@@ -18,7 +19,7 @@ function QuestionCard({ question, index, total, selected, onSelect, submitted, r
         </Badge>
       </div>
       <p className="text-white font-medium text-base mb-4">{question.question}</p>
-      <div className="grid gap-2">
+      <div className="grid gap-2" role="group" aria-label={`Opciones de la pregunta ${index + 1}`}>
         {question.options.map((option, optIndex) => {
           let optionClass = 'border-slate-700 bg-slate-800/50 hover:border-slate-500'
           if (submitted && review) {
@@ -37,9 +38,7 @@ function QuestionCard({ question, index, total, selected, onSelect, submitted, r
               key={optIndex}
               onClick={() => !submitted && onSelect(optIndex)}
               disabled={submitted}
-              role="radio"
-              aria-checked={optIndex === selected}
-              aria-label={`Option ${String.fromCharCode(65 + optIndex)}: ${option}`}
+              aria-pressed={optIndex === selected}
               className={`flex items-center gap-3 p-3 rounded-xl border text-sm text-left transition-all ${optionClass}`}
             >
               <span
@@ -82,6 +81,7 @@ export function QuizPage({
   onSubmitQuiz,
   quizResult,
   submitting,
+  submitError,
   onBackToLevel,
   onNextLevel,
 }) {
@@ -105,8 +105,8 @@ export function QuizPage({
       questionId: q.id,
       selectedIndex: answers[i] ?? null,
     }))
-    await onSubmitQuiz(session, answerList)
-    setSubmitted(true)
+    const result = await onSubmitQuiz(session, answerList)
+    if (result) setSubmitted(true)
   }
 
   const allAnswered = questions.every((_, i) => answers[i] !== undefined)
@@ -115,9 +115,11 @@ export function QuizPage({
   if (!session || !level) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8">
-        <p className="text-slate-400 mb-4">No hay quiz activo.</p>
+        <p className="text-slate-300 mb-4">
+          Aún no hay un quiz en marcha. Empieza por la explicación del nivel.
+        </p>
         <Button variant="secondary" onClick={onBackToLevel}>
-          ← Volver
+          ← Ir al nivel
         </Button>
       </div>
     )
@@ -127,31 +129,42 @@ export function QuizPage({
     <div className="max-w-3xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-8">
         <BackButton onClick={onBackToLevel} label="Volver al nivel" />
-        <Badge variant="amber">Level {level.number} Quiz</Badge>
+        <Badge variant="amber">Quiz — Nivel {level.number}</Badge>
       </div>
 
       <AnimatePresence mode="wait">
         {!submitted ? (
           <motion.div key="quiz" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <h2 className="text-2xl font-bold text-white mb-6">{level.label} — Quiz</h2>
+            <h2 className="text-2xl font-bold text-white mb-6">
+              Quiz {levelLabel(level.number).toLowerCase()}
+            </h2>
             {questions.map((q, i) => (
-              <div key={q.id} role="radiogroup" aria-label={`Question ${i + 1}: ${q.question}`}>
-                <QuestionCard
-                  question={q}
-                  index={i}
-                  total={questions.length}
-                  selected={answers[i]}
-                  onSelect={(opt) => handleSelect(i, opt)}
-                  submitted={false}
-                />
-              </div>
+              <QuestionCard
+                key={q.id}
+                question={q}
+                index={i}
+                total={questions.length}
+                selected={answers[i]}
+                onSelect={(opt) => handleSelect(i, opt)}
+                submitted={false}
+              />
             ))}
+
+            {submitError && (
+              <div
+                className="flex items-start gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-sm mb-4"
+                role="alert"
+              >
+                <span>{submitError}</span>
+              </div>
+            )}
+
             <Button
               onClick={handleSubmit}
               disabled={!allAnswered || submitting}
               loading={submitting}
             >
-              {submitting ? 'Verificando…' : 'Enviar respuestas'}
+              {submitting ? 'Corrigiendo…' : submitError ? 'Reintentar envío' : 'Enviar respuestas'}
             </Button>
           </motion.div>
         ) : result ? (
@@ -159,7 +172,7 @@ export function QuizPage({
             <div
               className={`glass rounded-3xl p-8 text-center mb-6 ${result.passed ? 'border-teal-500/30' : 'border-amber-500/30'}`}
               aria-live="polite"
-              aria-label={`Quiz result: ${result.passed ? 'passed' : 'not passed'}. Score ${result.score} out of ${result.total}`}
+              aria-label={`Resultado del quiz: ${result.passed ? 'superado' : 'no superado'}. ${result.score} de ${result.total} aciertos`}
             >
               <div className="text-5xl mb-4">{result.passed ? '🎉' : '💪'}</div>
               <h2 className="text-2xl font-bold text-white mb-2">

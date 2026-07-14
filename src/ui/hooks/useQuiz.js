@@ -1,24 +1,23 @@
 import { useState, useCallback } from 'react'
 import { SubmitQuiz } from '../../application/use-cases/SubmitQuiz.js'
-import { LocalStorageSessionRepository } from '../../infrastructure/storage/repositories/LocalStorageSessionRepository.js'
-import { AiProviderFactory } from '../../infrastructure/ai/AiProviderFactory.js'
-
-const repo = new LocalStorageSessionRepository()
-const aiProvider = AiProviderFactory.create('ollama', {
-  baseUrl: 'http://localhost:11434',
-  model: 'gpt-oss:120b-cloud',
-})
+import { sessionRepository as repo, aiProvider } from '../../composition/container.js'
+import { toUserMessage } from '../i18n/errorMessages.js'
 
 export function useQuiz() {
   const [quizResult, setQuizResult] = useState(null)
   const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState(null)
 
-  const submitQuiz = useCallback(async (session, answers) => {
+  const submitQuiz = useCallback(async (session, answers, levelIndex) => {
     setSubmitting(true)
+    setError(null)
     try {
-      const result = await SubmitQuiz.execute(session, answers, repo, aiProvider)
+      const result = await SubmitQuiz.execute(session, answers, levelIndex, repo, aiProvider)
       setQuizResult(result)
       return result
+    } catch (err) {
+      setError(toUserMessage(err))
+      return null
     } finally {
       setSubmitting(false)
     }
@@ -26,7 +25,8 @@ export function useQuiz() {
 
   const clearQuizResult = useCallback(() => {
     setQuizResult(null)
+    setError(null)
   }, [])
 
-  return { quizResult, submitting, submitQuiz, clearQuizResult }
+  return { quizResult, submitting, error, submitQuiz, clearQuizResult }
 }

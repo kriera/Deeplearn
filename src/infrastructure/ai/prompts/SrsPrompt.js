@@ -5,11 +5,13 @@
  */
 
 import { Level } from '../../../domain/entities/Level.js'
+import { detectLanguage, outputLanguageDirective } from './language.js'
 
 export function buildSRSPrompt(concept, levelLabel, levelNumber) {
   const level = Level.create(levelNumber)
+  const lang = detectLanguage(concept)
 
-  return `The user just passed the "${levelLabel}" level (level ${levelNumber}) of "${concept}".
+  return `You are a Feynman learning engine. The user just passed the "${levelLabel}" level (level ${levelNumber}) of "${concept}".
 Audience for this level: ${level.audience}.
 
 Generate 5 spaced-repetition flash cards that reinforce the key ideas from this level.
@@ -26,5 +28,6 @@ Return ONLY valid JSON:
 Card rules:
 - front: a question or cue (15 words or fewer, phrased at this level's vocabulary)
 - back: the answer (40 words or fewer, using the same vocabulary)
-No markdown, no preamble, no code fences.`
+No markdown, no preamble, no code fences.
+${outputLanguageDirective(lang)}`
 }

@@ -1,8 +1,8 @@
 # DeepLearn — System Specification
 
-> **Version:** 0.1.0 (draft)
+> **Version:** 0.2.0
 > **Status:** Spec-First (SDD Level 1)
-> **Última actualización:** 4 de julio de 2026
+> **Última actualización:** 14 de julio de 2026 (distribución local-first, ADR-005)
 
 ---
 
@@ -34,16 +34,14 @@ DeepLearn es una aplicación web de aprendizaje asistido por IA basada en la **T
 
 ### 2.4 Proveedores de IA
 
-- Anthropic Claude (hosted, via proxy en producción)
-- Ollama Local (http://localhost:11434)
-- Ollama Cloud (hosted, via proxy)
-- LM Studio (OpenAI-compatible local)
+- **Ollama Local** (http://localhost:11434) — provider principal y requisito de la app (ADR-005)
+- LM Studio (OpenAI-compatible local) — alternativa configurable por entorno
+- Anthropic Claude / Ollama Cloud (hosted) — estrategias disponibles solo para desarrollo, con key vía `.env`
 
 ### 2.5 Persistencia
 
 - Sesiones de aprendizaje y tarjetas SRS en localStorage
-- API keys en localStorage (solo para desarrollo local)
-- En producción: proxy serverless para proteger keys
+- Sin secretos en producción: la distribución es local-first (ADR-005), no hay keys que proteger
 
 ## 3. Arquitectura
 
@@ -81,19 +79,19 @@ DeepLearn es una aplicación web de aprendizaje asistido por IA basada en la **T
 
 ## 4. Stack Tecnológico
 
-| Componente       | Tecnología                 |
-| ---------------- | -------------------------- |
-| UI               | React 19                   |
-| Build            | Vite 8                     |
-| Estilos          | Tailwind CSS 4             |
-| Animaciones      | Framer Motion              |
-| Testing Unitario | Vitest + Testing Library   |
-| Testing E2E      | Playwright                 |
-| Linting          | oxlint                     |
-| Formato          | Prettier                   |
-| Quality Gates    | Husky + lint-staged        |
-| CI/CD            | GitHub Actions             |
-| Proxy IA         | Vercel serverless function |
+| Componente       | Tecnología               |
+| ---------------- | ------------------------ |
+| UI               | React 19                 |
+| Build            | Vite 8                   |
+| Estilos          | Tailwind CSS 4           |
+| Animaciones      | Framer Motion            |
+| Testing Unitario | Vitest + Testing Library |
+| Testing E2E      | Playwright               |
+| Linting          | oxlint                   |
+| Formato          | Prettier                 |
+| Quality Gates    | Husky + lint-staged      |
+| CI/CD            | GitHub Actions           |
+| Hosting          | Vercel (SPA estática)    |
 
 ## 5. Testing Strategy
 
@@ -121,11 +119,11 @@ Entry → Input Concept → Generate Level 1 → Read Explanation
 
 ## 7. Restricciones Técnicas
 
-- Sin backend propio (todo cliente + proxy serverless)
+- Sin backend propio: SPA estática + IA local del usuario (ADR-005)
 - Sin base de datos externa (localStorage, migrable a futuro)
 - Sin autenticación de usuarios
 - Sin sincronización multi-dispositivo
-- API keys de producción solo en variables de entorno del servidor
+- Providers cloud solo en desarrollo, con keys vía `.env` (nunca en el repo)
 
 ## 8. Criterios de Aceptación del Proyecto Final
 

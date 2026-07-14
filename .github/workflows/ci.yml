@@ -19,8 +19,13 @@ jobs:
         env:
           NODE_ENV: development
       - run: npm run lint
+      - run: npm audit --omit=dev --audit-level=high
       - run: npm run test:coverage
       - run: npm run build
+        env:
+          VITE_APP_VERSION: ${{ github.sha }}
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test
 
   deploy:
     needs: quality
@@ -36,6 +41,8 @@ jobs:
         env:
           NODE_ENV: development
       - run: npm run build
+        env:
+          VITE_APP_VERSION: ${{ github.sha }}
       - name: Deploy to Vercel
         uses: amondnet/vercel-action@v25
         with:

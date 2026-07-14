@@ -1,29 +1,44 @@
 # Deuda Técnica — DeepLearn
 
-> **Actualizado:** 14 Julio 2026 — PR #8
-> **Metodología:** `grep -rn "TODO\|FIXME\|HACK\|XXX" src/` + revisión manual de code smells
+> **Actualizado:** 14 Julio 2026 — PR #11
+> **Metodología:** `grep -rn "TODO\|FIXME\|HACK\|XXX" src/` + revisión manual de code smells + hallazgos de la evaluación interna contra la rúbrica del máster
 > **Referencia:** Módulo 6 — Code Smells, Refactor y Deuda (`Deuda-Tecnica-Practica.txt`)
 
 ## Inventario
 
-| ID | Tipo | Ubicación | Descripción | Impacto | Plan |
-|----|------|-----------|-------------|---------|------|
-| DT-001 | Compatibilidad | `src/test/ui/*.test.jsx` | React 19.2.7 + jsdom 29.1.1 no renderiza componentes. 14 tests UI no pueden ejecutarse. | Medio — cobertura UI no verificable en CI | Esperar release de @testing-library/react compatible con React 19.2. Cobertura UI cubierta por E2E (Playwright). |
-| DT-002 | Estado huérfano | `src/ui/pages/CompletionPage.jsx:6-7` | `postScore` y `feedback` son estado local sin persistencia. El usuario puede mover sliders pero los datos no se guardan. | Bajo — UX incompleta | PR #10 (UX Polish): persistir en session.evaluation o eliminar si no hay backend. |
-| DT-003 | Prop no usado | `src/App.jsx:141` | `onOpenSrs` se pasa como `() => {}` a CompletionPage. El SRS review panel no está implementado. | Bajo — funcionalidad futura | PR #10: implementar panel de revisión SRS o eliminar prop. |
+| ID     | Tipo                  | Ubicación                                                                                      | Descripción                                                                                                                                                                                                                         | Impacto                               | Plan                                                                                                                             |
+| ------ | --------------------- | ---------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| DT-003 | Funcionalidad dormida | `src/domain/services/SrsService.js`, `src/infrastructure/ai/prompts/SrsPrompt.js`, `useSrs.js` | El sistema SRS (SM-2) está implementado y testeado en dominio, pero no tiene panel de revisión en la UI ni se generan tarjetas en el flujo.                                                                                         | Bajo — funcionalidad futura           | Decidir antes de la entrega: implementar panel mínimo de repaso o documentar como roadmap y retirar el prompt/port no consumido. |
+| DT-005 | Cobertura             | `src/infrastructure/ai/providers/*`                                                            | Los 4 providers (fetch, parsing, thinking-mode) están al ~17% de cobertura; contienen lógica real de integración, no solo tipos. Además comparten estructura casi idéntica (duplicación que un `no-identical-functions` señalaría). | Medio — regresiones invisibles        | Tests de contrato contra el puerto AiProvider con fetch mockeado; extraer el `_call` común a una base o helper.                  |
+| DT-007 | Performance           | `dist/assets/index-*.js`                                                                       | Bundle único de 587 kB (>500 kB); sin code-splitting.                                                                                                                                                                               | Bajo — LCP en conexiones lentas       | `dynamic import()` por pantalla o `codeSplitting` de Rolldown.                                                                   |
+| DT-008 | Observabilidad LLM    | `src/infrastructure/ai/providers/*`                                                            | No se registran latencia ni tokens por llamada al modelo (los responses ya traen `eval_count`); no hay evaluations/golden dataset del contenido generado.                                                                           | Medio — calidad del output no medible | Breadcrumb/span de Sentry por llamada; mini golden dataset (5-10 conceptos) con asserts programáticos ejecutable vía script npm. |
 
 ## Métricas
 
-- **Líneas totales:** 3,359
-- **Issues abiertos:** 3
-- **Ratio de deuda:** 0.09% (3 issues / 3,359 LOC)
-- **Severidad:** 0 críticos, 1 medio, 2 bajos
-- **Código sin deuda:** 0 ocurrencias de TODO/FIXME/HACK/XXX
+- **Issues abiertos:** 4 (DT-003, DT-005, DT-007, DT-008; DT-005 el más relevante)
+- **Severidad:** 0 críticos, 2 medios, 2 bajos
+- **Código sin marcadores:** 0 ocurrencias de TODO/FIXME/HACK/XXX en `src/`
 
-## Deuda saldada en PR #8
+## Deuda saldada
 
-| ID | Descripción | Solución |
-|----|-------------|----------|
-| — | SVG back button duplicado en LevelPage + QuizPage | Extraído a `BackButton.jsx` |
-| — | Magic number `5` en App.jsx (niveles totales) | Constante `TOTAL_LEVELS` |
-| — | Prop `onGoToLevel` no usado en LevelPage | Eliminado |
+### PR #11 (14 Julio)
+
+| ID     | Descripción                                                                                                                                                                                                                    | Solución                                                                                                                                                                                           |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| DT-001 | Se creía que React 19.2 + jsdom impedía ejecutar los 14 tests UI ("no pueden ejecutarse"). Diagnóstico revisado: los tests sí corren; fallaba 1 aserción que comprobaba una clase CSS del spinner (detalle de implementación). | Aserción migrada a estado accesible (`aria-busy`); suite UI completa en verde.                                                                                                                     |
+| DT-002 | `postScore`/`feedback` en CompletionPage eran estado local sin persistencia.                                                                                                                                                   | `saveEvaluation` en `useSession` usando `Session.setEvaluation` + botón "Guardar evaluación".                                                                                                      |
+| —      | Bug de wiring: `useQuiz` llamaba a `SubmitQuiz.execute` con la firma antigua (4 args); enviar un quiz rompía el flujo desde la UI.                                                                                             | Firma corregida + 5 tests de integración hook → caso de uso → repositorio (`src/test/ui/useQuiz.test.jsx`).                                                                                        |
+| —      | Configuración y construcción de adaptadores duplicadas y hardcodeadas en 3 hooks de UI.                                                                                                                                        | Composition root único (`src/composition/container.js`) con config por entorno.                                                                                                                    |
+| —      | `detectLanguage` duplicada en 2 prompts y ausente en otros 2; salida sin directiva de idioma.                                                                                                                                  | Módulo único `prompts/language.js` + directiva explícita en los 4 prompts.                                                                                                                         |
+| —      | Estado `error` de generación invisible (shimmer infinito); `SkeletonCard` sin integrar; errores técnicos crudos en pantalla.                                                                                                   | Estado de error con reintento en LevelPage, SkeletonCard integrado, mapeo de errores a español accionable (`ui/i18n/errorMessages.js`).                                                            |
+| —      | `src/App.css` scaffold muerto; `onOpenSrs={() => {}}`; sesiones recientes no clicables.                                                                                                                                        | App.css eliminado; prop retirado; sesiones retomables con `restoreSession`.                                                                                                                        |
+| DT-006 | E2E rotos y no deterministas: referenciaban una UI en inglés que ya no existía, exigían Ollama vivo y usaban selectores CSS de implementación.                                                                                 | Reescritos contra la UI real con `getByRole`/`getByLabel`, modelo mockeado con `page.route` (deterministas, ejecutables en CI), `forbidOnly` en CI, 4º escenario de estado de error con reintento. |
+| DT-004 | Proxy serverless (`api/ai.js` + middlewares de validación y rate limiting) sin consumidor tras la decisión local-first; rate limit in-memory inviable en serverless.                                                           | Eliminado citando ADR-005 (junto con sus 14 tests); los providers cloud siguen disponibles como estrategias del factory vía `.env`.                                                                |
+
+### PR #8 (13 Julio)
+
+| ID  | Descripción                                       | Solución                    |
+| --- | ------------------------------------------------- | --------------------------- |
+| —   | SVG back button duplicado en LevelPage + QuizPage | Extraído a `BackButton.jsx` |
+| —   | Magic number `5` en App.jsx (niveles totales)     | Constante `TOTAL_LEVELS`    |
+| —   | Prop `onGoToLevel` no usado en LevelPage          | Eliminado                   |
