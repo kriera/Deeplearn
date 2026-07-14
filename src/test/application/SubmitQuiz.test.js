@@ -43,7 +43,7 @@ describe('SubmitQuiz', () => {
       { questionId: 'q5', selectedIndex: 0 },
     ]
 
-    const result = await SubmitQuiz.execute(baseSession, answers, repo)
+    const result = await SubmitQuiz.execute(baseSession, answers, undefined, repo)
 
     expect(result.passed).toBe(true)
     expect(result.score).toBe(5)
@@ -62,7 +62,7 @@ describe('SubmitQuiz', () => {
       { questionId: 'q5', selectedIndex: 1 },
     ]
 
-    const result = await SubmitQuiz.execute(baseSession, answers, repo)
+    const result = await SubmitQuiz.execute(baseSession, answers, undefined, repo)
 
     expect(result.passed).toBe(false)
     expect(result.score).toBe(1)
@@ -81,7 +81,7 @@ describe('SubmitQuiz', () => {
       { questionId: 'q5', selectedIndex: 0 },
     ]
 
-    const result = await SubmitQuiz.execute(baseSession, answers, repo)
+    const result = await SubmitQuiz.execute(baseSession, answers, undefined, repo)
 
     expect(result.answerReview).toHaveLength(5)
     expect(result.answerReview[0].correct).toBe(true)
@@ -96,7 +96,7 @@ describe('SubmitQuiz', () => {
       levels: baseSession.levels.map((l, i) => (i === 0 ? { ...l, questions: [] } : l)),
     }
 
-    await expect(SubmitQuiz.execute(noQuestions, [], repo)).rejects.toThrow('No questions loaded')
+    await expect(SubmitQuiz.execute(noQuestions, [], undefined, repo)).rejects.toThrow('No questions loaded')
   })
 
   it('handles answer with null selectedIndex', async () => {
@@ -109,7 +109,7 @@ describe('SubmitQuiz', () => {
       { questionId: 'q5', selectedIndex: 0 },
     ]
 
-    const result = await SubmitQuiz.execute(baseSession, answers, repo)
+    const result = await SubmitQuiz.execute(baseSession, answers, undefined, repo)
     expect(result.answerReview[0].selectedAnswer).toBe('')
     expect(result.answerReview[0].correct).toBe(false)
   })
@@ -132,7 +132,7 @@ describe('SubmitQuiz', () => {
       { questionId: 'q5', selectedIndex: 0 },
     ]
 
-    const result = await SubmitQuiz.execute(baseSession, answers, repo, aiProvider)
+    const result = await SubmitQuiz.execute(baseSession, answers, undefined, repo, aiProvider)
 
     expect(result.passed).toBe(true)
     expect(result.nextLevelContent).toBeTruthy()
@@ -155,7 +155,7 @@ describe('SubmitQuiz', () => {
       { questionId: 'q5', selectedIndex: 2 },
     ]
 
-    const result = await SubmitQuiz.execute(baseSession, answers, repo, aiProvider)
+    const result = await SubmitQuiz.execute(baseSession, answers, undefined, repo, aiProvider)
 
     expect(result.passed).toBe(false)
     expect(result.reExplanation).toBe('Simpler explanation...')

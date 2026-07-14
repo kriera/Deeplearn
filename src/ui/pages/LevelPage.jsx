@@ -8,9 +8,9 @@ export function LevelPage({ session, levelIndex, onGoToQuiz, onGoToEntry }) {
   if (!session) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8">
-        <p className="text-slate-400 mb-4">No active session.</p>
+        <p className="text-slate-400 mb-4">No hay sesión activa.</p>
         <Button variant="secondary" onClick={onGoToEntry}>
-          ← Back to Home
+          ← Volver al inicio
         </Button>
       </div>
     )
@@ -45,17 +45,21 @@ export function LevelPage({ session, levelIndex, onGoToQuiz, onGoToEntry }) {
         </Badge>
         <h2 className="text-2xl sm:text-3xl font-bold text-white">{level.label} Overview</h2>
         <p className="text-slate-400 text-sm">
-          Read the explanation below, then take the 5-question quiz to unlock the next level.
+          Lee la explicación y responde el quiz de 5 preguntas para desbloquear el siguiente nivel.
         </p>
       </motion.div>
 
       <div className="glass rounded-3xl p-6 sm:p-8 mb-8">
         {level.explanation ? (
-          <p className="text-slate-200 text-base leading-relaxed whitespace-pre-line">
-            {level.explanation}
-          </p>
+          <div aria-live="polite" aria-label={`Level ${level.number} explanation`}>
+            <p className="text-slate-200 text-base leading-relaxed whitespace-pre-line">
+              {level.explanation}
+            </p>
+          </div>
         ) : (
-          <div className="shimmer h-32 rounded-xl" />
+          <div aria-busy="true" aria-label="Loading level content">
+            <div className="shimmer h-32 rounded-xl" />
+          </div>
         )}
       </div>
 
@@ -66,17 +70,17 @@ export function LevelPage({ session, levelIndex, onGoToQuiz, onGoToEntry }) {
           transition={{ delay: 0.2 }}
         >
           <Button variant="primary" onClick={onGoToQuiz}>
-            Take the Quiz →
+            Responder quiz →
           </Button>
           <p className="text-center text-xs text-slate-500 mt-3">
-            Score 4/5 or higher to unlock the next level
+            Necesitas 4/5 para desbloquear el siguiente nivel
           </p>
         </motion.div>
       )}
 
       {isLocked && (
         <div className="p-4 rounded-2xl bg-slate-800/50 border border-slate-700 text-center">
-          <p className="text-slate-400 text-sm">🔒 Complete previous levels to unlock this one.</p>
+          <p className="text-slate-400 text-sm">🔒 Completa los niveles anteriores para desbloquear este.</p>
         </div>
       )}
     </div>

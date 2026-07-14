@@ -14,7 +14,7 @@ function QuestionCard({ question, index, total, selected, onSelect, submitted, r
     >
       <div className="flex items-center justify-between mb-4">
         <Badge variant="slate">
-          Question {index + 1} of {total}
+          Pregunta {index + 1} de {total}
         </Badge>
       </div>
       <p className="text-white font-medium text-base mb-4">{question.question}</p>
@@ -37,6 +37,9 @@ function QuestionCard({ question, index, total, selected, onSelect, submitted, r
               key={optIndex}
               onClick={() => !submitted && onSelect(optIndex)}
               disabled={submitted}
+              role="radio"
+              aria-checked={optIndex === selected}
+              aria-label={`Option ${String.fromCharCode(65 + optIndex)}: ${option}`}
               className={`flex items-center gap-3 p-3 rounded-xl border text-sm text-left transition-all ${optionClass}`}
             >
               <span
@@ -50,6 +53,7 @@ function QuestionCard({ question, index, total, selected, onSelect, submitted, r
                         ? 'bg-teal-500 text-white'
                         : 'bg-slate-700 text-slate-400'
                 }`}
+                aria-hidden="true"
               >
                 {String.fromCharCode(65 + optIndex)}
               </span>
@@ -64,7 +68,7 @@ function QuestionCard({ question, index, total, selected, onSelect, submitted, r
           animate={{ opacity: 1, height: 'auto' }}
           className={`mt-4 p-3 rounded-xl text-sm ${review.correct ? 'bg-green-500/10 border border-green-500/20 text-green-300' : 'bg-amber-500/10 border border-amber-500/20 text-amber-300'}`}
         >
-          <p className="font-semibold mb-1">{review.correct ? '✓ Correct' : '✗ Incorrect'}</p>
+          <p className="font-semibold mb-1">{review.correct ? '✓ Correcta' : '✗ Incorrecta'}</p>
           <p>{question.explanation}</p>
         </motion.div>
       )}
@@ -111,9 +115,9 @@ export function QuizPage({
   if (!session || !level) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8">
-        <p className="text-slate-400 mb-4">No active quiz.</p>
+        <p className="text-slate-400 mb-4">No hay quiz activo.</p>
         <Button variant="secondary" onClick={onBackToLevel}>
-          ← Back
+          ← Volver
         </Button>
       </div>
     )
@@ -122,7 +126,7 @@ export function QuizPage({
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-8">
-        <BackButton onClick={onBackToLevel} label="Back to Level" />
+        <BackButton onClick={onBackToLevel} label="Volver al nivel" />
         <Badge variant="amber">Level {level.number} Quiz</Badge>
       </div>
 
@@ -131,36 +135,39 @@ export function QuizPage({
           <motion.div key="quiz" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <h2 className="text-2xl font-bold text-white mb-6">{level.label} — Quiz</h2>
             {questions.map((q, i) => (
-              <QuestionCard
-                key={q.id}
-                question={q}
-                index={i}
-                total={questions.length}
-                selected={answers[i]}
-                onSelect={(opt) => handleSelect(i, opt)}
-                submitted={false}
-              />
+              <div key={q.id} role="radiogroup" aria-label={`Question ${i + 1}: ${q.question}`}>
+                <QuestionCard
+                  question={q}
+                  index={i}
+                  total={questions.length}
+                  selected={answers[i]}
+                  onSelect={(opt) => handleSelect(i, opt)}
+                  submitted={false}
+                />
+              </div>
             ))}
             <Button
               onClick={handleSubmit}
               disabled={!allAnswered || submitting}
               loading={submitting}
             >
-              {submitting ? 'Checking…' : 'Submit Answers'}
+              {submitting ? 'Verificando…' : 'Enviar respuestas'}
             </Button>
           </motion.div>
         ) : result ? (
           <motion.div key="result" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <div
               className={`glass rounded-3xl p-8 text-center mb-6 ${result.passed ? 'border-teal-500/30' : 'border-amber-500/30'}`}
+              aria-live="polite"
+              aria-label={`Quiz result: ${result.passed ? 'passed' : 'not passed'}. Score ${result.score} out of ${result.total}`}
             >
               <div className="text-5xl mb-4">{result.passed ? '🎉' : '💪'}</div>
               <h2 className="text-2xl font-bold text-white mb-2">
-                {result.passed ? 'Gate Passed!' : 'Keep Trying!'}
+                {result.passed ? '¡Nivel superado!' : '¡Sigue intentando!'}
               </h2>
               <p className="text-slate-400 mb-4">
-                You scored {result.score}/{result.total}
-                {result.passed ? ' — Level unlocked!' : ' — 4/5 needed to pass'}
+                Has acertado {result.score}/{result.total}
+                {result.passed ? ' — ¡Nivel desbloqueado!' : ' — necesitas 4/5 para aprobar'}
               </p>
               <div className="flex gap-2 justify-center mb-4">
                 {result.answerReview?.map((r, i) => (
@@ -190,7 +197,7 @@ export function QuizPage({
             <div className="flex gap-3 mt-6">
               {result.passed ? (
                 <Button onClick={onNextLevel}>
-                  {levelIndex + 1 >= 5 ? 'View Results →' : 'Continue to Next Level →'}
+                  {levelIndex + 1 >= 5 ? 'Ver resultados →' : 'Siguiente nivel →'}
                 </Button>
               ) : (
                 <Button
@@ -200,11 +207,11 @@ export function QuizPage({
                     setAnswers({})
                   }}
                 >
-                  Try Again
+                  Intentar de nuevo
                 </Button>
               )}
               <Button variant="ghost" onClick={onBackToLevel}>
-                Back to Level
+                Volver al nivel
               </Button>
             </div>
           </motion.div>

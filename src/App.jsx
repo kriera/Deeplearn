@@ -41,7 +41,7 @@ export default function App() {
   }
 
   const handleSubmitQuiz = async (session, answers) => {
-    const result = await submitQuiz(session, answers)
+    const result = await submitQuiz(session, answers, levelIndex)
     if (result?.passed) {
       await refreshSession()
     }
@@ -73,14 +73,24 @@ export default function App() {
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-900">
-      <header className="sticky top-0 z-20 border-b border-slate-800/80 bg-slate-900/80 backdrop-blur-xl">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-teal-500 focus:text-white focus:rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-300"
+      >
+        Skip to content
+      </a>
+      <header
+        className="sticky top-0 z-20 border-b border-slate-800/80 bg-slate-900/80 backdrop-blur-xl"
+        role="banner"
+        aria-label="DeepLearn header"
+      >
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
           <button
             onClick={handleGoToEntry}
             className="flex items-center gap-2 hover:opacity-80 transition-opacity"
             aria-label="Go to home"
           >
-            <span className="text-xl">🧠</span>
+            <span className="text-xl" aria-hidden="true">🧠</span>
             <span className="font-bold text-white text-sm hidden sm:block">DeepLearn</span>
           </button>
           {currentSession && (
@@ -93,7 +103,7 @@ export default function App() {
         </div>
       </header>
 
-      <main className="flex-1">
+      <main id="main-content" className="flex-1" aria-live="polite" aria-label="Main content">
         <AnimatePresence mode="wait">
           <motion.div
             key={screen}
@@ -147,7 +157,7 @@ export default function App() {
       </main>
 
       <footer className="border-t border-slate-800/50 py-4 text-center text-xs text-slate-600">
-        DeepLearn · Feynman Learning Engine · All data stored locally
+        DeepLearn · Motor de aprendizaje Feynman · Datos almacenados localmente
       </footer>
     </div>
   )

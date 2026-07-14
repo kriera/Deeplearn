@@ -10,7 +10,7 @@ export function ProgressBar({ current, total, className = '' }) {
       aria-valuemax={total}
     >
       <div className="flex items-center justify-between mb-2">
-        <span className="text-xs text-slate-400">Progress</span>
+        <span className="text-xs text-slate-400">Progreso</span>
         <span className="text-xs text-slate-500">
           {current}/{total}
         </span>

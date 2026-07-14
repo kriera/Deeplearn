@@ -49,13 +49,13 @@ export function ConceptEntryPage({ onStart, sessions, loading, error }) {
 
         {sessions.length > 0 && (
           <p className="text-center text-xs text-slate-600 mb-6">
-            {sessions.length} concept{sessions.length !== 1 ? 's' : ''} explored
+            {sessions.length} conceptos explorados
           </p>
         )}
 
         <div className="glass rounded-3xl p-6 mb-4">
           <label htmlFor="concept-input" className="block text-sm font-medium text-slate-300 mb-3">
-            What do you want to learn today?
+            ¿Qué quieres aprender hoy?
           </label>
           <input
             id="concept-input"
@@ -63,19 +63,24 @@ export function ConceptEntryPage({ onStart, sessions, loading, error }) {
             value={concept}
             onChange={(e) => setConcept(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleStart()}
-            placeholder="e.g. Quantum mechanics, Black holes, Machine learning…"
+            placeholder="ej. Mecánica cuántica, Agujeros negros, Machine learning…"
             className="w-full bg-slate-800/50 border border-slate-600 rounded-2xl px-5 py-4 text-white placeholder-slate-500 focus:outline-none focus:border-teal-500 text-base"
             disabled={loading}
             aria-label="Enter a concept to learn"
+            aria-describedby="concept-hint"
             autoComplete="off"
           />
+          <p id="concept-hint" className="text-xs text-slate-500 mt-1">
+            Type any topic you want to learn about using the Feynman technique
+          </p>
           <div className="flex flex-wrap gap-2 mt-3 mb-5">
-            <span className="text-xs text-slate-500">Try:</span>
+            <span className="text-xs text-slate-500">Prueba:</span>
             {suggestions.map((s) => (
               <button
                 key={s}
                 onClick={() => setConcept(s)}
                 className="text-xs px-3 py-1 rounded-full bg-slate-700/60 text-slate-400 hover:text-teal-300 transition-colors border border-slate-700"
+                aria-label={`Use suggestion: ${s}`}
               >
                 {s}
               </button>
@@ -83,20 +88,24 @@ export function ConceptEntryPage({ onStart, sessions, loading, error }) {
           </div>
 
           {error && (
-            <div className="flex items-start gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-sm mb-4">
+            <div
+              className="flex items-start gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-sm mb-4"
+              role="alert"
+              aria-live="assertive"
+            >
               <span>{error}</span>
             </div>
           )}
 
           <Button onClick={handleStart} disabled={!concept.trim()} loading={loading}>
-            {loading ? 'Generating…' : 'Generate Your Learning Path →'}
+            {loading ? 'Generando…' : 'Generar ruta de aprendizaje →'}
           </Button>
         </div>
 
         {sessions.length > 0 && (
           <div className="mt-10">
             <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4">
-              Recent Sessions
+              Sesiones recientes
             </h3>
             <div className="grid gap-3">
               {sessions.slice(0, 6).map((session) => (
@@ -111,7 +120,7 @@ export function ConceptEntryPage({ onStart, sessions, loading, error }) {
                     <p className="text-slate-500 text-xs mt-0.5">
                       {new Date(session.createdAt).toLocaleDateString()} ·{' '}
                       <span className="text-teal-400">
-                        {session.levelsUnlocked - 1}/5 levels completed
+                        {session.levelsUnlocked - 1}/5 niveles completados
                       </span>
                     </p>
                   </div>

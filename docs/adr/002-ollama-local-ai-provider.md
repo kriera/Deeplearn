@@ -1,0 +1,43 @@
+# ADR-002: Ollama Local como AI Provider Principal
+
+**Fecha**: 2026-07-08
+**Estado**: Aceptado
+
+## Contexto
+
+DeepLearn necesita generar explicaciones y quizzes mediante IA. El proyecto debe funcionar sin dependencia de APIs externas de pago, permitiendo desarrollo y testing offline. El usuario dispone de Ollama con modelos cloud-hosted accesibles vía localhost.
+
+## Opciones Consideradas
+
+1. **Ollama Local** — Modelos ejecutándose en localhost:11434, incluyendo modelos cloud-hosted como proxy transparente.
+2. **Anthropic Claude API** — API hosted de pago, requiere clave y conexión a internet.
+3. **LM Studio** — OpenAI-compatible local, requiere instalación separada.
+4. **Ollama Cloud API** — API hosted de pago en api.ollama.com.
+
+## Decisión
+
+Elegimos **Ollama Local** como provider principal, con soporte para Anthropic y LM Studio como alternativas.
+
+## Justificación
+
+- **Cero coste**: Ollama es gratuito y los modelos cloud-hosted (gpt-oss:120b-cloud) se acceden sin API key vía localhost.
+- **Offline-first**: Funciona sin conexión a internet para modelos locales.
+- **Modelos cloud**: Los modelos cloud-hosted en Ollama se acceden como proxy transparente en localhost:11434, no requieren el provider `ollama-cloud`.
+- **Strategy Pattern**: AiProviderFactory permite cambiar de provider en runtime sin modificar código.
+
+## Consecuencias
+
+### Positivas
+- Desarrollo y testing sin coste de API
+- Sin dependencia de servicios externos
+- Modelos cloud accesibles sin API key
+
+### Negativas
+- Thinking mode en modelos gpt-oss/qwen3-coder requiere configuración especial (`thinking: { enabled: false }`)
+- Token budget debe ajustarse por modelo (3000 para explicaciones, 5000 para quizzes)
+- Latencia variable según carga del servidor Ollama
+
+## Referencias
+
+- `~/bigschool_master/extracted_text/Prompt Engineering Para Developers/`
+- `~/bigschool_master/extracted_text/Buenas Practicas Y Principios De Diseno/Strategy-Pattern.txt`
