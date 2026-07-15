@@ -6,6 +6,7 @@
 
 import { Level } from '../../../domain/entities/Level.js'
 import { detectLanguage, outputLanguageDirective } from './language.js'
+import { QUIZ_QUALITY_RULES } from './QuizPrompt.js'
 
 export function buildReExplainPrompt(concept, levelNumber, weakAreas) {
   const level = Level.create(levelNumber)
@@ -26,6 +27,9 @@ Audience: ${level.audience}
 Explanation rules:
 ${level.rules.map((r, i) => `  ${i + 1}. ${r}`).join('\n')}
   Extra rule: Use a DIFFERENT analogy or example than the first attempt.
+
+Quiz quality rules:
+${QUIZ_QUALITY_RULES.map((r, i) => `  ${i + 1}. ${r}`).join('\n')}
 
 Return ONLY valid JSON:
 {

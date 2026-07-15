@@ -73,3 +73,13 @@ describe('SrsPrompt', () => {
     expect(prompt).toContain('5 spaced-repetition flash cards')
   })
 })
+
+describe('buildReExplainPrompt — reglas de calidad del quiz', () => {
+  it('incluye las reglas de calidad (regresión: eval detectó correct_index sin distribuir)', () => {
+    const prompt = buildReExplainPrompt('black holes', 1, [
+      { question: 'What is the event horizon?' },
+    ])
+    expect(prompt).toContain('Spread correct_index across 0, 1, 2, and 3.')
+    expect(prompt).toContain('Wrong options must be plausible')
+  })
+})

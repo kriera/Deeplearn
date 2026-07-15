@@ -7,7 +7,7 @@
 import { Level } from '../../../domain/entities/Level.js'
 import { detectLanguage, outputLanguageDirective } from './language.js'
 
-const QUIZ_QUALITY_RULES = [
+export const QUIZ_QUALITY_RULES = [
   'Write exactly 5 distinct multiple-choice questions.',
   'Each question must test a DIFFERENT idea from the explanation.',
   'Vary question types: direct recall, cause/effect, analogy application, "what would happen if", and misconception check.',
