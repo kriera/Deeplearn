@@ -5,61 +5,47 @@
  * Strategy Pattern (Módulo 1): Estrategia intercambiable para generación de contenido.
  */
 
-import {
-  buildLevelExplanationPrompt,
-  buildLevelQuizPrompt,
-  buildReExplainPrompt,
-  buildSRSPrompt,
-} from '../prompts/index.js'
+import { BaseAiProvider } from './BaseAiProvider.js'
 
-export class AnthropicProvider {
+export class AnthropicProvider extends BaseAiProvider {
   constructor(config) {
-    this.name = 'anthropic'
-    this.apiKey = config.apiKey
-    this.model = config.model || 'claude-sonnet-4-20250514'
-  }
-
-  async generateExplanation(concept, levelNumber) {
-    const prompt = buildLevelExplanationPrompt(concept, levelNumber)
-    return this._call(prompt, 1200)
-  }
-
-  async generateQuiz(concept, levelNumber, explanation) {
-    const prompt = buildLevelQuizPrompt(concept, levelNumber, explanation)
-    return this._call(prompt, 2400)
-  }
-
-  async generateReExplanation(concept, levelNumber, weakAreas) {
-    const prompt = buildReExplainPrompt(concept, levelNumber, weakAreas)
-    return this._call(prompt, 2400)
-  }
-
-  async generateSRSCards(concept, levelNumber, levelLabel) {
-    const prompt = buildSRSPrompt(concept, levelLabel, levelNumber)
-    return this._call(prompt, 1200)
-  }
-
-  async _call(prompt, maxTokens) {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': this.apiKey,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: this.model,
-        max_tokens: maxTokens,
-        messages: [{ role: 'user', content: prompt }],
-      }),
+    super({
+      name: 'anthropic',
+      model: config.model || 'claude-sonnet-4-20250514',
+      budgets: { explanation: 1200, quiz: 2400 },
+      errorLabel: 'Anthropic API',
     })
+    this.apiKey = config.apiKey
+  }
 
-    if (!response.ok) {
-      throw new Error(`Anthropic API error: ${response.status}`)
+  _endpoint() {
+    return 'https://api.anthropic.com/v1/messages'
+  }
+
+  _headers() {
+    return {
+      'Content-Type': 'application/json',
+      'x-api-key': this.apiKey,
+      'anthropic-version': '2023-06-01',
     }
+  }
 
-    const data = await response.json()
-    const text = (data.content || []).map((b) => b.text || '').join('')
-    return JSON.parse(text)
+  _body(prompt, maxTokens) {
+    return {
+      model: this.model,
+      max_tokens: maxTokens,
+      messages: [{ role: 'user', content: prompt }],
+    }
+  }
+
+  _content(data) {
+    return (data.content || []).map((b) => b.text || '').join('')
+  }
+
+  _usage(data) {
+    return {
+      inputTokens: data?.usage?.input_tokens,
+      outputTokens: data?.usage?.output_tokens,
+    }
   }
 }

@@ -14,6 +14,7 @@ A Feynman learning engine that generates 5-level explanations and quizzes for an
 - **Quiz gates**: 5 AI-generated multiple-choice questions per level; score 4/5 to unlock the next level.
 - **Adaptive re-explanation**: fail a quiz and the engine re-explains the level with a different analogy, focused on your weak areas.
 - **Language aware**: concepts written in Spanish get fully Spanish content; English concepts get English content.
+- **Spaced repetition (SRS)**: passing a level generates flash cards scheduled with the SM-2 algorithm; review them from the home screen or after completing a concept.
 - **Session persistence**: sessions live in localStorage; resume any recent concept from the home screen.
 - **Self-evaluation**: rate your understanding and leave feedback when you complete a concept.
 
@@ -112,8 +113,9 @@ deeplearn/
 │   │   └── use-cases/       # StartSession, SubmitQuiz, GenerateLevelContent
 │   ├── infrastructure/
 │   │   ├── ai/
-│   │   │   ├── providers/   # OllamaProvider, AnthropicProvider, LmStudioProvider
-│   │   │   ├── prompts/     # LevelPrompt, QuizPrompt, ReExplainPrompt, SrsPrompt
+│   │   │   ├── providers/   # BaseAiProvider + 4 adaptadores (Ollama, LM Studio, …)
+│   │   │   ├── prompts/     # LevelPrompt, QuizPrompt, ReExplainPrompt, SrsPrompt, language
+│   │   │   ├── observability.js  # Latencia/tokens por llamada al modelo (Sentry)
 │   │   │   └── AiProviderFactory.js
 │   │   ├── storage/
 │   │   │   ├── repositories/  # LocalStorageSessionRepository, InMemorySessionRepository
@@ -130,6 +132,7 @@ deeplearn/
 │   ├── main.jsx             # Entry point + Sentry ErrorBoundary
 │   └── index.css            # Tailwind + custom animations
 ├── e2e/                     # Playwright E2E tests
+├── scripts/eval.js          # Evals de contenido con golden dataset (npm run eval)
 ├── docs/
 │   ├── adr/                 # Architecture Decision Records (ver adr/README.md)
 │   │   ├── 001-clean-architecture-hexagonal.md
@@ -160,6 +163,9 @@ NODE_ENV=development npm run test:coverage
 
 # E2E tests (Playwright — deterministic, AI model mocked via page.route)
 npx playwright test
+
+# Content quality evals (LLMOps — requires Ollama running; writes docs/evals.md)
+npm run eval
 ```
 
 **Coverage thresholds** (enforced in `vite.config.js` — the run fails if unmet): 100% on domain and application layers, 80% on UI components.
@@ -167,8 +173,8 @@ npx playwright test
 **Expected output** of `NODE_ENV=development npm test`:
 
 ```
- Test Files  20 passed (20)
-      Tests  129 passed (129)
+ Test Files  24 passed (24)
+      Tests  166 passed (166)
 ```
 
 E2E tests run in CI on every push (4 scenarios: happy path, quiz failure + retry, navigation, model-unavailable error state).

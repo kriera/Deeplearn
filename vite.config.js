@@ -5,6 +5,20 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  build: {
+    // Code-splitting (DT-007): vendors pesados en chunks propios y cacheables
+    rolldownOptions: {
+      output: {
+        codeSplitting: {
+          groups: [
+            { name: 'sentry', test: /node_modules[\\/]@sentry/ },
+            { name: 'motion', test: /node_modules[\\/]framer-motion/ },
+            { name: 'react-vendor', test: /node_modules[\\/](react|react-dom|scheduler)[\\/]/ },
+          ],
+        },
+      },
+    },
+  },
   test: {
     environment: 'jsdom',
     globals: true,

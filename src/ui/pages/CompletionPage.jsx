@@ -2,7 +2,14 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Button } from '../atoms/Button.jsx'
 
-export function CompletionPage({ session, onGoToEntry, onRestart, onSaveEvaluation }) {
+export function CompletionPage({
+  session,
+  onGoToEntry,
+  onRestart,
+  onSaveEvaluation,
+  dueCount = 0,
+  onOpenSrs,
+}) {
   const [postScore, setPostScore] = useState(session?.evaluation?.postScore || 4)
   const [feedback, setFeedback] = useState(session?.evaluation?.feedback || '')
   const [saved, setSaved] = useState(false)
@@ -75,6 +82,19 @@ export function CompletionPage({ session, onGoToEntry, onRestart, onSaveEvaluati
             <p className="text-xs text-slate-400 uppercase tracking-wider mt-1">Puntuación media</p>
           </div>
         </div>
+
+        {dueCount > 0 && (
+          <button
+            onClick={onOpenSrs}
+            className="w-full flex items-center justify-between gap-3 rounded-2xl p-4 mb-8 border border-teal-500/30 bg-teal-500/5 hover:border-teal-400/60 transition-colors text-left"
+          >
+            <span className="text-sm text-slate-200">
+              🗂️ <strong className="text-teal-300">{dueCount}</strong>{' '}
+              {dueCount === 1 ? 'tarjeta lista' : 'tarjetas listas'} para tu primer repaso
+            </span>
+            <span className="text-teal-300 text-sm font-semibold shrink-0">Repasar →</span>
+          </button>
+        )}
 
         <div className="rounded-3xl border border-slate-700 bg-slate-800/50 p-5 text-left mb-8">
           <h2 className="text-lg font-bold text-white mb-4">Evaluación del aprendizaje</h2>

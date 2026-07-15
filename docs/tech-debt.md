@@ -1,25 +1,31 @@
 # Deuda Técnica — DeepLearn
 
-> **Actualizado:** 14 Julio 2026 — PR #11
+> **Actualizado:** 15 Julio 2026 — PR #12
 > **Metodología:** `grep -rn "TODO\|FIXME\|HACK\|XXX" src/` + revisión manual de code smells + hallazgos de la evaluación interna contra la rúbrica del máster
 > **Referencia:** Módulo 6 — Code Smells, Refactor y Deuda (`Deuda-Tecnica-Practica.txt`)
 
 ## Inventario
 
-| ID     | Tipo                  | Ubicación                                                                                      | Descripción                                                                                                                                                                                                                         | Impacto                               | Plan                                                                                                                             |
-| ------ | --------------------- | ---------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| DT-003 | Funcionalidad dormida | `src/domain/services/SrsService.js`, `src/infrastructure/ai/prompts/SrsPrompt.js`, `useSrs.js` | El sistema SRS (SM-2) está implementado y testeado en dominio, pero no tiene panel de revisión en la UI ni se generan tarjetas en el flujo.                                                                                         | Bajo — funcionalidad futura           | Decidir antes de la entrega: implementar panel mínimo de repaso o documentar como roadmap y retirar el prompt/port no consumido. |
-| DT-005 | Cobertura             | `src/infrastructure/ai/providers/*`                                                            | Los 4 providers (fetch, parsing, thinking-mode) están al ~17% de cobertura; contienen lógica real de integración, no solo tipos. Además comparten estructura casi idéntica (duplicación que un `no-identical-functions` señalaría). | Medio — regresiones invisibles        | Tests de contrato contra el puerto AiProvider con fetch mockeado; extraer el `_call` común a una base o helper.                  |
-| DT-007 | Performance           | `dist/assets/index-*.js`                                                                       | Bundle único de 587 kB (>500 kB); sin code-splitting.                                                                                                                                                                               | Bajo — LCP en conexiones lentas       | `dynamic import()` por pantalla o `codeSplitting` de Rolldown.                                                                   |
-| DT-008 | Observabilidad LLM    | `src/infrastructure/ai/providers/*`                                                            | No se registran latencia ni tokens por llamada al modelo (los responses ya traen `eval_count`); no hay evaluations/golden dataset del contenido generado.                                                                           | Medio — calidad del output no medible | Breadcrumb/span de Sentry por llamada; mini golden dataset (5-10 conceptos) con asserts programáticos ejecutable vía script npm. |
+| ID     | Tipo      | Ubicación        | Descripción                                                                                                                                                   | Impacto                                          | Plan                                                                                                |
+| ------ | --------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
+| DT-009 | Cobertura | `src/ui/pages/*` | Las páginas (LevelPage, QuizPage, ConceptEntryPage, CompletionPage) no tienen tests de componente propios; su comportamiento se cubre indirectamente vía E2E. | Bajo — regresiones de UI detectables solo en E2E | PR #13: tests de integración con Testing Library + `userEvent` (happy path, error, estados vacíos). |
 
 ## Métricas
 
-- **Issues abiertos:** 4 (DT-003, DT-005, DT-007, DT-008; DT-005 el más relevante)
-- **Severidad:** 0 críticos, 2 medios, 2 bajos
+- **Issues abiertos:** 1 (DT-009)
+- **Severidad:** 0 críticos, 0 medios, 1 bajo
 - **Código sin marcadores:** 0 ocurrencias de TODO/FIXME/HACK/XXX en `src/`
 
 ## Deuda saldada
+
+### PR #12 (15 Julio)
+
+| ID     | Descripción                                                                                                  | Solución                                                                                                                                                                                                                                                                                                                                      |
+| ------ | ------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| DT-003 | Sistema SRS dormido: dominio SM-2 testeado pero sin panel de revisión ni generación de tarjetas en el flujo. | Caso de uso `GenerateSrsCards` (tarjetas al aprobar nivel, en segundo plano), `SrsReviewPage` con Recordé/Olvidé y accesos desde Entry y Completion. 12 tests nuevos (caso de uso + hook + componente con `userEvent`).                                                                                                                       |
+| DT-005 | Providers al ~17% de cobertura con `_call` casi idéntico duplicado 4 veces.                                  | `BaseAiProvider` (template method: endpoint/headers/body/content/usage por adaptador) + suite de contrato compartida contra el puerto (21 tests, fetch mockeado), incluida extracción de JSON con code fences y thinking mode.                                                                                                                |
+| DT-007 | Bundle único de 587 kB sin code-splitting.                                                                   | `React.lazy` en todas las páginas salvo la de entrada + chunks de vendors (react-vendor 367 kB, motion 133 kB, sentry 37 kB); ningún chunk supera los 500 kB.                                                                                                                                                                                 |
+| DT-008 | Sin observabilidad LLM ni evaluations del contenido generado.                                                | Breadcrumbs de Sentry por llamada (provider, tipo, latencia, tokens vía `observability.js`) y golden dataset de 8 conceptos con `npm run eval` (valida contrato, distribución de `correct_index`, longitud e idioma; escribe `docs/evals.md`). Primera ejecución real pendiente de tener Ollama activo — incluida en el checklist de entrega. |
 
 ### PR #11 (14 Julio)
 

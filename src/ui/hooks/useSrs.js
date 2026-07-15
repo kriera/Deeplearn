@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { SrsService } from '../../domain/services/SrsService.js'
-import { cardRepository as cardRepo } from '../../composition/container.js'
+import { GenerateSrsCards } from '../../application/use-cases/GenerateSrsCards.js'
+import { cardRepository as cardRepo, aiProvider } from '../../composition/container.js'
 
 export function useSrs() {
   const [cards, setCards] = useState([])
@@ -28,15 +29,14 @@ export function useSrs() {
     setCards((prev) => prev.map((c) => (c.id === card.id ? updated : c)))
   }, [])
 
-  const addCards = useCallback(
-    async (newCards) => {
-      for (const card of newCards) {
-        await cardRepo.save(card)
-      }
+  const generateForLevel = useCallback(
+    async (session, levelNumber) => {
+      const created = await GenerateSrsCards.execute(session, levelNumber, aiProvider, cardRepo)
       await loadCards()
+      return created
     },
     [loadCards],
   )
 
-  return { cards, dueCards, rememberCard, forgetCard, addCards, loadCards }
+  return { cards, dueCards, rememberCard, forgetCard, generateForLevel, loadCards }
 }

@@ -1,11 +1,25 @@
-import { useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useSession } from './ui/hooks/useSession.js'
 import { useQuiz } from './ui/hooks/useQuiz.js'
+import { useSrs } from './ui/hooks/useSrs.js'
 import { ConceptEntryPage } from './ui/pages/ConceptEntryPage.jsx'
-import { LevelPage } from './ui/pages/LevelPage.jsx'
-import { QuizPage } from './ui/pages/QuizPage.jsx'
-import { CompletionPage } from './ui/pages/CompletionPage.jsx'
+import { SkeletonCard } from './ui/atoms/SkeletonCard.jsx'
+
+// Code-splitting (DT-007): solo la pantalla de entrada carga eager;
+// el resto se descarga cuando el usuario navega hasta ella.
+const LevelPage = lazy(() =>
+  import('./ui/pages/LevelPage.jsx').then((m) => ({ default: m.LevelPage })),
+)
+const QuizPage = lazy(() =>
+  import('./ui/pages/QuizPage.jsx').then((m) => ({ default: m.QuizPage })),
+)
+const CompletionPage = lazy(() =>
+  import('./ui/pages/CompletionPage.jsx').then((m) => ({ default: m.CompletionPage })),
+)
+const SrsReviewPage = lazy(() =>
+  import('./ui/pages/SrsReviewPage.jsx').then((m) => ({ default: m.SrsReviewPage })),
+)
 
 const TOTAL_LEVELS = 5
 
@@ -24,8 +38,10 @@ export default function App() {
     goToEntry,
   } = useSession()
   const { quizResult, submitting, error: quizError, submitQuiz, clearQuizResult } = useQuiz()
+  const { dueCards, rememberCard, forgetCard, generateForLevel } = useSrs()
   const [screen, setScreen] = useState('entry')
   const [levelIndex, setLevelIndex] = useState(0)
+  const [srsReturnScreen, setSrsReturnScreen] = useState('entry')
 
   const handleStart = async (concept) => {
     const result = await startSession(concept)
@@ -52,8 +68,15 @@ export default function App() {
     const result = await submitQuiz(session, answers, levelIndex)
     if (result?.passed) {
       await refreshSession()
+      // Las tarjetas de repaso se generan en segundo plano; su fallo no bloquea el flujo
+      generateForLevel(session, levelIndex + 1).catch(() => {})
     }
     return result
+  }
+
+  const handleOpenSrs = (from) => {
+    setSrsReturnScreen(from)
+    setScreen('srs')
   }
 
   const handleNextLevel = () => {
@@ -106,59 +129,79 @@ export default function App() {
       </header>
 
       <main id="main-content" className="flex-1">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={screen}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.2 }}
-            className="w-full max-w-5xl mx-auto"
-          >
-            {screen === 'entry' && (
-              <ConceptEntryPage
-                onStart={handleStart}
-                onResume={handleResume}
-                sessions={sessions}
-                loading={loading}
-                error={error}
-              />
-            )}
-            {screen === 'level' && (
-              <LevelPage
-                session={currentSession}
-                levelIndex={levelIndex}
-                onGoToQuiz={handleGoToQuiz}
-                onGoToEntry={handleGoToEntry}
-                onRetry={regenerateLevel}
-                regenerating={regenerating}
-              />
-            )}
-            {screen === 'quiz' && (
-              <QuizPage
-                session={currentSession}
-                levelIndex={levelIndex}
-                onSubmitQuiz={handleSubmitQuiz}
-                quizResult={quizResult}
-                submitting={submitting}
-                submitError={quizError}
-                onBackToLevel={() => setScreen('level')}
-                onNextLevel={handleNextLevel}
-              />
-            )}
-            {screen === 'complete' && (
-              <CompletionPage
-                session={currentSession}
-                onGoToEntry={handleGoToEntry}
-                onSaveEvaluation={saveEvaluation}
-                onRestart={() => {
-                  setLevelIndex(0)
-                  setScreen('level')
-                }}
-              />
-            )}
-          </motion.div>
-        </AnimatePresence>
+        <Suspense
+          fallback={
+            <div className="max-w-3xl mx-auto px-4 py-8">
+              <SkeletonCard variant="card" />
+            </div>
+          }
+        >
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={screen}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
+              className="w-full max-w-5xl mx-auto"
+            >
+              {screen === 'entry' && (
+                <ConceptEntryPage
+                  onStart={handleStart}
+                  onResume={handleResume}
+                  sessions={sessions}
+                  loading={loading}
+                  error={error}
+                  dueCount={dueCards.length}
+                  onOpenSrs={() => handleOpenSrs('entry')}
+                />
+              )}
+              {screen === 'level' && (
+                <LevelPage
+                  session={currentSession}
+                  levelIndex={levelIndex}
+                  onGoToQuiz={handleGoToQuiz}
+                  onGoToEntry={handleGoToEntry}
+                  onRetry={regenerateLevel}
+                  regenerating={regenerating}
+                />
+              )}
+              {screen === 'quiz' && (
+                <QuizPage
+                  session={currentSession}
+                  levelIndex={levelIndex}
+                  onSubmitQuiz={handleSubmitQuiz}
+                  quizResult={quizResult}
+                  submitting={submitting}
+                  submitError={quizError}
+                  onBackToLevel={() => setScreen('level')}
+                  onNextLevel={handleNextLevel}
+                />
+              )}
+              {screen === 'complete' && (
+                <CompletionPage
+                  session={currentSession}
+                  onGoToEntry={handleGoToEntry}
+                  onSaveEvaluation={saveEvaluation}
+                  dueCount={dueCards.length}
+                  onOpenSrs={() => handleOpenSrs('complete')}
+                  onRestart={() => {
+                    setLevelIndex(0)
+                    setScreen('level')
+                  }}
+                />
+              )}
+              {screen === 'srs' && (
+                <SrsReviewPage
+                  dueCards={dueCards}
+                  onRemember={rememberCard}
+                  onForget={forgetCard}
+                  onBack={() => setScreen(srsReturnScreen)}
+                />
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </Suspense>
       </main>
 
       <footer className="border-t border-slate-800/50 py-4 text-center text-xs text-slate-400">

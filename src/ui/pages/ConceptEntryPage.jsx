@@ -2,7 +2,15 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Button } from '../atoms/Button.jsx'
 
-export function ConceptEntryPage({ onStart, onResume, sessions, loading, error }) {
+export function ConceptEntryPage({
+  onStart,
+  onResume,
+  sessions,
+  loading,
+  error,
+  dueCount = 0,
+  onOpenSrs,
+}) {
   const [concept, setConcept] = useState('')
 
   const handleStart = () => {
@@ -52,6 +60,19 @@ export function ConceptEntryPage({ onStart, onResume, sessions, loading, error }
             {sessions.length}{' '}
             {sessions.length === 1 ? 'concepto explorado' : 'conceptos explorados'}
           </p>
+        )}
+
+        {dueCount > 0 && (
+          <button
+            onClick={onOpenSrs}
+            className="glass w-full flex items-center justify-between gap-3 rounded-2xl p-4 mb-4 border border-teal-500/30 hover:border-teal-400/60 transition-colors text-left"
+          >
+            <span className="text-sm text-slate-200">
+              🗂️ Tienes <strong className="text-teal-300">{dueCount}</strong>{' '}
+              {dueCount === 1 ? 'tarjeta pendiente' : 'tarjetas pendientes'} de repaso
+            </span>
+            <span className="text-teal-300 text-sm font-semibold shrink-0">Repasar →</span>
+          </button>
         )}
 
         <div className="glass rounded-3xl p-6 mb-4">

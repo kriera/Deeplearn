@@ -5,68 +5,46 @@
  * Strategy Pattern (Módulo 1): Estrategia intercambiable.
  */
 
-import {
-  buildLevelExplanationPrompt,
-  buildLevelQuizPrompt,
-  buildReExplainPrompt,
-  buildSRSPrompt,
-} from '../prompts/index.js'
+import { BaseAiProvider } from './BaseAiProvider.js'
 
-export class OllamaProvider {
+export class OllamaProvider extends BaseAiProvider {
   constructor(config) {
-    this.name = 'ollama'
-    this.baseUrl = (config.baseUrl || 'http://localhost:11434').replace(/\/$/, '')
-    this.model = config.model || 'llama3.2'
-  }
-
-  async generateExplanation(concept, levelNumber) {
-    const prompt = buildLevelExplanationPrompt(concept, levelNumber)
-    return this._call(prompt, 8000)
-  }
-
-  async generateQuiz(concept, levelNumber, explanation) {
-    const prompt = buildLevelQuizPrompt(concept, levelNumber, explanation)
-    return this._call(prompt, 12000)
-  }
-
-  async generateReExplanation(concept, levelNumber, weakAreas) {
-    const prompt = buildReExplainPrompt(concept, levelNumber, weakAreas)
-    return this._call(prompt, 12000)
-  }
-
-  async generateSRSCards(concept, levelNumber, levelLabel) {
-    const prompt = buildSRSPrompt(concept, levelLabel, levelNumber)
-    return this._call(prompt, 8000)
-  }
-
-  async _call(prompt, maxTokens) {
-    const response = await fetch(`${this.baseUrl}/api/chat`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: this.model,
-        messages: [
-          { role: 'system', content: 'You are a JSON API. Respond ONLY with valid JSON.' },
-          { role: 'user', content: prompt },
-        ],
-        stream: false,
-        options: { num_predict: maxTokens, thinking: { enabled: false } },
-      }),
+    super({
+      name: 'ollama',
+      model: config.model || 'llama3.2',
+      // Presupuestos amplios: los modelos gpt-oss consumen tokens de thinking
+      budgets: { explanation: 8000, quiz: 12000 },
+      errorLabel: 'Ollama',
     })
+    this.baseUrl = (config.baseUrl || 'http://localhost:11434').replace(/\/$/, '')
+  }
 
-    if (!response.ok) {
-      throw new Error(`Ollama error: ${response.status}`)
+  _endpoint() {
+    return `${this.baseUrl}/api/chat`
+  }
+
+  _body(prompt, maxTokens) {
+    return {
+      model: this.model,
+      messages: [
+        { role: 'system', content: 'You are a JSON API. Respond ONLY with valid JSON.' },
+        { role: 'user', content: prompt },
+      ],
+      stream: false,
+      options: { num_predict: maxTokens, thinking: { enabled: false } },
     }
+  }
 
-    const data = await response.json()
-    let content = data?.message?.content || ''
-
+  _content(data) {
     // Models with thinking mode (gpt-oss, qwen3-coder) put output in
     // message.thinking and leave message.content empty.
-    if (!content && data?.message?.thinking) {
-      content = data.message.thinking
-    }
+    return data?.message?.content || data?.message?.thinking || ''
+  }
 
-    return JSON.parse(content || '{}')
+  _usage(data) {
+    return {
+      inputTokens: data?.prompt_eval_count,
+      outputTokens: data?.eval_count,
+    }
   }
 }
