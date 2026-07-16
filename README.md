@@ -86,10 +86,14 @@ git clone <repo-url> && cd deeplearn
 # 2. Instalar (NODE_ENV=development necesario para las devDependencies)
 NODE_ENV=development npm install
 
-# 3. Arrancar Ollama y descargar el modelo
+# 3. Instalar Ollama (macOS: brew install ollama · Linux: curl -fsSL https://ollama.com/install.sh | sh
+#    · Windows: instalador en https://ollama.com/download) y descargar el modelo
 ollama pull gpt-oss:120b-cloud
 
-# 4. Servidor de desarrollo
+# 4. Arrancar Ollama (no hace falta si usas la app de escritorio, que ya lo deja en marcha)
+ollama serve
+
+# 5. Servidor de desarrollo
 npm run dev
 ```
 
@@ -206,28 +210,48 @@ Requiere el secret `VERCEL_TOKEN` en la configuración del repositorio de GitHub
 ### Usar la app desplegada (el local-first se mantiene)
 
 El sitio desplegado es una SPA estática: **todas las llamadas de IA van al Ollama
-de tu propia máquina**, nunca a un servidor (ADR-005). Para que la URL pública
-llegue a tu Ollama local hacen falta dos cosas:
+de tu propia máquina**, nunca a un servidor (ADR-005). Guía completa desde cero:
 
-1. **Permitir el origen en Ollama** (CORS). Ollama solo acepta orígenes locales
-   por defecto, así que arráncalo permitiendo el dominio de la app:
+1. **Instalar Ollama** (una sola vez):
 
    ```bash
-   # macOS (persiste para la app de Ollama)
-   launchctl setenv OLLAMA_ORIGINS "https://deeplearn-three.vercel.app"
-   # o puntual, arrancando el servidor a mano
+   # macOS
+   brew install ollama
+   # (o descarga el instalador desde https://ollama.com/download)
+
+   # Linux
+   curl -fsSL https://ollama.com/install.sh | sh
+
+   # Windows: instalador desde https://ollama.com/download
+   ```
+
+2. **Descargar el modelo** (una sola vez, requiere sesión de Ollama para los
+   modelos `-cloud`):
+
+   ```bash
+   ollama pull gpt-oss:120b-cloud
+   ```
+
+3. **Arrancar Ollama permitiendo el origen de la app** (CORS — Ollama solo
+   acepta orígenes locales por defecto):
+
+   ```bash
    OLLAMA_ORIGINS="https://deeplearn-three.vercel.app" ollama serve
    ```
 
-2. **Un navegador que permita HTTPS → localhost**: Chrome, Edge y Firefox tratan
-   `http://localhost` como origen confiable y permiten la llamada. Safari puede
-   bloquearla — en ese caso ejecuta la app en local con `npm run dev`
-   (totalmente soportado, mismas funcionalidades).
+   O de forma persistente en macOS, si prefieres usar la app de escritorio de
+   Ollama en vez del comando anterior:
 
-3. **Aceptar el permiso de red local si Chrome lo pide**: las versiones
-   recientes de Chrome muestran un aviso de "acceso a la red local" la primera
-   vez que la página llama a `localhost`. Acéptalo para que la app pueda hablar
-   con tu Ollama.
+   ```bash
+   launchctl setenv OLLAMA_ORIGINS "https://deeplearn-three.vercel.app"
+   # reinicia la app de Ollama después
+   ```
+
+4. **Abrir <https://deeplearn-three.vercel.app> en Chrome, Edge o Firefox**
+   (tratan `http://localhost` como origen confiable; Safari puede bloquear la
+   llamada — en ese caso ejecuta la app en local con `npm run dev`, totalmente
+   soportado). Si Chrome muestra el aviso de "acceso a la red local" la primera
+   vez, acéptalo para que la app pueda hablar con tu Ollama.
 
 ---
 
