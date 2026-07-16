@@ -40,6 +40,21 @@ Elegimos la **opción 1: distribución local-first con Ollama como requisito de 
 - La demo pública no genera contenido para visitantes sin Ollama.
 - El proxy serverless (`api/ai.js` con validación y rate limiting) quedó sin consumidor y **se eliminó en el PR #11** (era la salida registrada como DT-004): mantener código muerto en producción pesa más que el valor de reserva. Los providers cloud permanecen como estrategias del factory, configurables por entorno para desarrollo.
 
+## Nota operativa: uso desde el despliegue público (añadida el 2026-07-16)
+
+Que la app esté servida desde Vercel no contradice el local-first: el navegador
+del usuario ejecuta la SPA y llama a `http://localhost:11434` **en su propia
+máquina**. Para que esa llamada funcione desde un origen HTTPS público hacen
+falta dos condiciones, documentadas en el README:
+
+1. **CORS en Ollama**: por defecto Ollama solo acepta orígenes locales. El
+   usuario debe arrancarlo con `OLLAMA_ORIGINS` incluyendo el dominio público
+   (p. ej. `OLLAMA_ORIGINS=https://<app>.vercel.app`).
+2. **Contenido mixto**: Chrome, Edge y Firefox permiten que una página HTTPS
+   llame a `http://localhost` (origen potencialmente confiable). Safari puede
+   bloquearlo; en ese caso la alternativa es ejecutar la app en local
+   (`npm run dev`), que queda documentada como vía soportada.
+
 ## Referencias
 
 - `~/bigschool_master/extracted_text/Integracion De Apis Y Plataformas Ia Populares/` (rúbrica coste/privacidad/control)

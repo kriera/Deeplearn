@@ -1,113 +1,116 @@
 # DeepLearn
 
-**Learn anything. Explain it like Feynman.**
+**Aprende cualquier cosa. Explícalo como Feynman.**
 
-A Feynman learning engine that generates 5-level explanations and quizzes for any concept, powered by local AI (Ollama). Built with Clean Architecture + Hexagonal (Ports & Adapters) for the BIG School Master's final project.
+Motor de aprendizaje Feynman que genera explicaciones en 5 niveles y quizzes para cualquier concepto, impulsado por IA local (Ollama). Construido con Clean Architecture + Hexagonal (Ports & Adapters) como proyecto final del Máster en Desarrollo con IA de BIG School.
 
-**Local-first** (ADR-005): the app runs entirely on your machine — your AI (Ollama), your data (localStorage). No accounts, no API keys, no server.
+**Local-first** (ADR-005): la app funciona íntegramente en tu máquina — tu IA (Ollama), tus datos (localStorage). Sin cuentas, sin API keys, sin servidor.
 
----
-
-## Main Features
-
-- **5-level Feynman path**: enter any concept and get explanations tailored to 5 audiences, from a 6-year-old (Elemental) to a researcher (Experto).
-- **Quiz gates**: 5 AI-generated multiple-choice questions per level; score 4/5 to unlock the next level.
-- **Adaptive re-explanation**: fail a quiz and the engine re-explains the level with a different analogy, focused on your weak areas.
-- **Language aware**: concepts written in Spanish get fully Spanish content; English concepts get English content.
-- **Spaced repetition (SRS)**: passing a level generates flash cards scheduled with the SM-2 algorithm; review them from the home screen or after completing a concept.
-- **Session persistence**: sessions live in localStorage; resume any recent concept from the home screen.
-- **Self-evaluation**: rate your understanding and leave feedback when you complete a concept.
+> **Sin login**: la aplicación no tiene registro ni inicio de sesión — es una decisión de diseño, no una carencia. Al ser local-first, los datos ya son personales por definición (viven en el navegador de cada usuario), así que no hay credenciales de prueba que entregar. Justificación completa en [ADR-005](docs/adr/005-distribucion-local-first.md).
 
 ---
 
-## Architecture
+## Funcionalidades principales
+
+- **Ruta Feynman de 5 niveles**: escribe cualquier concepto y obtén explicaciones adaptadas a 5 audiencias, desde un niño de 6 años (Elemental) hasta una audiencia investigadora (Experto).
+- **Quiz por nivel**: 5 preguntas tipo test generadas por IA en cada nivel; acierta 4/5 para desbloquear el siguiente.
+- **Re-explicación adaptativa**: si suspendes un quiz, el motor re-explica el nivel con una analogía distinta, centrada en tus áreas débiles.
+- **Generación progresiva**: la explicación se muestra en cuanto está lista y el quiz se genera en segundo plano mientras lees; el siguiente nivel se prepara mientras ves tu resultado.
+- **Consciente del idioma**: los conceptos escritos en español generan contenido íntegramente en español; los conceptos en inglés, en inglés.
+- **Repaso espaciado (SRS)**: superar un nivel genera tarjetas de repaso programadas con el algoritmo SM-2; repásalas desde la pantalla de inicio o al completar un concepto.
+- **Persistencia de sesiones**: las sesiones viven en localStorage; retoma cualquier concepto reciente desde la pantalla de inicio.
+- **Autoevaluación**: valora tu comprensión y deja feedback al completar un concepto.
+
+---
+
+## Arquitectura
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│                      UI Layer                        │
+│                    Capa de UI                        │
 │  React 19 · Framer Motion · Tailwind CSS 4           │
-│  Pages: Entry → Level → Quiz → Completion            │
+│  Páginas: Entry → Level → Quiz → Completion          │
 │  Hooks: useSession · useQuiz · useSrs                │
 └──────────────────────┬──────────────────────────────┘
-                       │ depends on
+                       │ depende de
 ┌──────────────────────▼──────────────────────────────┐
-│                 Application Layer                    │
-│  Use Cases: StartSession · SubmitQuiz                │
+│               Capa de Aplicación                     │
+│  Casos de uso: StartSession · SubmitQuiz             │
 │            GenerateLevelContent                      │
-│  Ports: SessionRepository · AiProvider (interfaces)  │
+│  Puertos: SessionRepository · AiProvider (interfaces)│
 └──────┬───────────────────────────────────────┬───────┘
-       │ implements                            │ implements
+       │ implementa                            │ implementa
 ┌──────▼──────────┐                    ┌───────▼───────┐
-│  Domain Layer    │                    │ Infrastructure│
-│  Entities:       │                    │ Storage:      │
+│ Capa de Dominio  │                    │Infraestructura│
+│  Entidades:      │                    │ Storage:      │
 │  Session · Level │                    │ localStorage  │
-│  Question        │                    │ AI: Ollama    │
-│  Services:       │                    │ (gpt-oss:     │
+│  Question        │                    │ IA: Ollama    │
+│  Servicios:      │                    │ (gpt-oss:     │
 │  SrsService      │                    │  120b-cloud)  │
 │  Value Objects   │                    │ Sentry · CI/CD│
 └─────────────────┘                    └───────────────┘
 ```
 
-**Design patterns:** Dependency Inversion (DIP), Strategy (AI providers), Repository (persistence), SRP (use cases).
+**Patrones de diseño:** Inversión de dependencias (DIP), Strategy (providers de IA), Repository (persistencia), SRP (casos de uso).
 
 ---
 
-## Tech Stack
+## Stack tecnológico
 
-| Layer      | Technology              | Version            |
-| ---------- | ----------------------- | ------------------ |
-| UI         | React                   | 19.2.7             |
-| Build      | Vite                    | 8.1.1              |
-| Styling    | Tailwind CSS            | 4.3.2              |
-| Animation  | Framer Motion           | 12.42.2            |
-| AI         | Ollama (local)          | gpt-oss:120b-cloud |
-| Monitoring | Sentry                  | 10.65.0            |
-| Testing    | Vitest                  | 4.1.9              |
-| E2E        | Playwright              | 1.61.1             |
-| Linting    | Oxlint                  | 1.73.0             |
-| Formatting | Prettier                | 3.9.5              |
-| CI/CD      | GitHub Actions + Vercel | —                  |
+| Capa           | Tecnología              | Versión            |
+| -------------- | ----------------------- | ------------------ |
+| UI             | React                   | 19.2.7             |
+| Build          | Vite                    | 8.1.1              |
+| Estilos        | Tailwind CSS            | 4.3.2              |
+| Animación      | Framer Motion           | 12.42.2            |
+| IA             | Ollama (local)          | gpt-oss:120b-cloud |
+| Monitorización | Sentry                  | 10.65.0            |
+| Testing        | Vitest                  | 4.1.9              |
+| E2E            | Playwright              | 1.61.1             |
+| Linting        | Oxlint                  | 1.73.0             |
+| Formato        | Prettier                | 3.9.5              |
+| CI/CD          | GitHub Actions + Vercel | —                  |
 
 ---
 
-## Quick Start
+## Instalación y ejecución
 
-**Requirements**: Node 22+, and [Ollama](https://ollama.com) running on `localhost:11434` (the app's only external dependency — see ADR-005).
+**Requisitos**: Node 22+ y [Ollama](https://ollama.com) en ejecución en `localhost:11434` (la única dependencia externa de la app — ver ADR-005).
 
 ```bash
-# 1. Clone
+# 1. Clonar
 git clone <repo-url> && cd deeplearn
 
-# 2. Install (NODE_ENV=development required for devDependencies)
+# 2. Instalar (NODE_ENV=development necesario para las devDependencies)
 NODE_ENV=development npm install
 
-# 3. Start Ollama and pull the model
+# 3. Arrancar Ollama y descargar el modelo
 ollama pull gpt-oss:120b-cloud
 
-# 4. Dev server
+# 4. Servidor de desarrollo
 npm run dev
 ```
 
-**Environment variables** (`.env`, all optional — defaults shown in `.env.example`):
+**Variables de entorno** (`.env`, todas opcionales — valores por defecto en `.env.example`):
 
-| Variable           | Default                  | Description                                                    |
-| ------------------ | ------------------------ | -------------------------------------------------------------- |
-| `VITE_AI_PROVIDER` | `ollama`                 | AI provider: `ollama`, `lmstudio`, `ollama-cloud`, `anthropic` |
-| `VITE_AI_BASE_URL` | `http://localhost:11434` | Base URL of the AI provider                                    |
-| `VITE_AI_MODEL`    | `gpt-oss:120b-cloud`     | Model name                                                     |
-| `VITE_SENTRY_DSN`  | —                        | Sentry DSN for error monitoring                                |
-| `VITE_APP_VERSION` | `0.0.0`                  | Release version for Sentry (CI injects the commit SHA)         |
+| Variable           | Por defecto              | Descripción                                                       |
+| ------------------ | ------------------------ | ----------------------------------------------------------------- |
+| `VITE_AI_PROVIDER` | `ollama`                 | Provider de IA: `ollama`, `lmstudio`, `ollama-cloud`, `anthropic` |
+| `VITE_AI_BASE_URL` | `http://localhost:11434` | URL base del provider de IA                                       |
+| `VITE_AI_MODEL`    | `gpt-oss:120b-cloud`     | Nombre del modelo                                                 |
+| `VITE_SENTRY_DSN`  | —                        | DSN de Sentry para monitorización de errores                      |
+| `VITE_APP_VERSION` | `0.0.0`                  | Versión de release para Sentry (la CI inyecta el SHA del commit)  |
 
 ---
 
-## Project Structure
+## Estructura del proyecto
 
 ```
 deeplearn/
 ├── src/
 │   ├── domain/
 │   │   ├── entities/        # Session, Level, Question
-│   │   └── services/        # SrsService (spaced repetition)
+│   │   └── services/        # SrsService (repaso espaciado)
 │   ├── application/
 │   │   ├── ports/           # SessionRepository, AiProvider (interfaces)
 │   │   └── use-cases/       # StartSession, SubmitQuiz, GenerateLevelContent
@@ -115,23 +118,24 @@ deeplearn/
 │   │   ├── ai/
 │   │   │   ├── providers/   # BaseAiProvider + 4 adaptadores (Ollama, LM Studio, …)
 │   │   │   ├── prompts/     # LevelPrompt, QuizPrompt, ReExplainPrompt, SrsPrompt, language
-│   │   │   ├── observability.js  # Latencia/tokens por llamada al modelo (Sentry)
+│   │   │   ├── observability.js         # Latencia/tokens por llamada al modelo (Sentry)
+│   │   │   ├── shuffleQuestionOptions.js # Guardrail: baraja opciones del quiz
 │   │   │   └── AiProviderFactory.js
 │   │   ├── storage/
 │   │   │   ├── repositories/  # LocalStorageSessionRepository, InMemorySessionRepository
 │   │   │   └── serializers/   # SessionSerializer
-│   │   └── sentry.js        # Sentry initialization
-│   ├── composition/         # Composition root: config + wiring de dependencias
+│   │   └── sentry.js        # Inicialización de Sentry
+│   ├── composition/         # Composition root: config + cableado de dependencias
 │   ├── ui/
 │   │   ├── atoms/           # Button, Badge, ProgressBar, BackButton, SkeletonCard
 │   │   ├── hooks/           # useSession, useQuiz, useSrs
 │   │   ├── i18n/            # levelLabels, errorMessages (microcopy de errores)
 │   │   └── pages/           # ConceptEntryPage, LevelPage, QuizPage, CompletionPage
-│   ├── test/                # Unit + integration tests (Vitest)
-│   ├── App.jsx              # Root component with screen routing
-│   ├── main.jsx             # Entry point + Sentry ErrorBoundary
-│   └── index.css            # Tailwind + custom animations
-├── e2e/                     # Playwright E2E tests
+│   ├── test/                # Tests unitarios + integración (Vitest)
+│   ├── App.jsx              # Componente raíz con enrutado de pantallas
+│   ├── main.jsx             # Punto de entrada + ErrorBoundary de Sentry
+│   └── index.css            # Tailwind + animaciones propias
+├── e2e/                     # Tests E2E (Playwright)
 ├── scripts/eval.js          # Evals de contenido con golden dataset (npm run eval)
 ├── docs/
 │   ├── adr/                 # Architecture Decision Records (ver adr/README.md)
@@ -140,48 +144,49 @@ deeplearn/
 │   │   ├── 003-localstorage-persistence.md
 │   │   ├── 004-vitest-playwright-testing.md
 │   │   └── 005-distribucion-local-first.md
-│   ├── PLAN.md              # Implementation plan
-│   └── tech-debt.md         # Known issues
-├── .github/workflows/ci.yml # CI/CD pipeline
-├── vercel.json              # SPA rewrite rules
-└── .env.example             # Environment template
+│   ├── PLAN.md              # Plan de implementación
+│   ├── evals.md             # Informe de evals de contenido (generado)
+│   └── tech-debt.md         # Deuda técnica registrada
+├── .github/workflows/ci.yml # Pipeline de CI/CD
+├── vercel.json              # Reglas SPA + cabeceras de seguridad
+└── .env.example             # Plantilla de variables de entorno
 ```
 
 ---
 
-## Testing
+## Pruebas
 
 ```bash
-# Unit + integration tests (Vitest)
+# Tests unitarios + integración (Vitest)
 NODE_ENV=development npm test
 
-# Watch mode
+# Modo watch
 NODE_ENV=development npm run test:watch
 
-# Coverage
+# Cobertura
 NODE_ENV=development npm run test:coverage
 
-# E2E tests (Playwright — deterministic, AI model mocked via page.route)
+# Tests E2E (Playwright — deterministas, modelo de IA mockeado vía page.route)
 npx playwright test
 
-# Content quality evals (LLMOps — requires Ollama running; writes docs/evals.md)
+# Evals de calidad de contenido (LLMOps — requiere Ollama activo; escribe docs/evals.md)
 npm run eval
 ```
 
-**Coverage thresholds** (enforced in `vite.config.js` — the run fails if unmet): 100% on domain and application layers, 80% on UI components.
+**Umbrales de cobertura** (forzados en `vite.config.js` — la ejecución falla si no se cumplen): 100% en las capas de dominio y aplicación, 80% en componentes de UI.
 
-**Expected output** of `NODE_ENV=development npm test`:
+**Salida esperada** de `NODE_ENV=development npm test`:
 
 ```
- Test Files  24 passed (24)
-      Tests  166 passed (166)
+ Test Files  25 passed (25)
+      Tests  184 passed (184)
 ```
 
-E2E tests run in CI on every push (4 scenarios: happy path, quiz failure + retry, navigation, model-unavailable error state).
+Los E2E corren en la CI en cada push (4 escenarios: camino feliz, quiz suspendido + reintento, navegación y estado de error sin modelo disponible).
 
 ---
 
-## Deployment
+## Despliegue
 
 **Vercel** (manual):
 
@@ -190,49 +195,69 @@ NODE_ENV=development npm run build
 vercel --prod
 ```
 
-**GitHub Actions** (automated on push to `main`):
+**GitHub Actions** (automático en cada push a `main`):
 
-1. Lint → 2. Test → 3. Build → 4. Deploy to Vercel
+1. Lint → 2. Test → 3. Build → 4. Deploy a Vercel
 
-Requires `VERCEL_TOKEN` secret in GitHub repository settings.
+Requiere el secret `VERCEL_TOKEN` en la configuración del repositorio de GitHub.
+
+### Usar la app desplegada (el local-first se mantiene)
+
+El sitio desplegado es una SPA estática: **todas las llamadas de IA van al Ollama
+de tu propia máquina**, nunca a un servidor (ADR-005). Para que la URL pública
+llegue a tu Ollama local hacen falta dos cosas:
+
+1. **Permitir el origen en Ollama** (CORS). Ollama solo acepta orígenes locales
+   por defecto, así que arráncalo permitiendo el dominio de la app:
+
+   ```bash
+   # macOS (persiste para la app de Ollama)
+   launchctl setenv OLLAMA_ORIGINS "https://<tu-despliegue>.vercel.app"
+   # o puntual, arrancando el servidor a mano
+   OLLAMA_ORIGINS="https://<tu-despliegue>.vercel.app" ollama serve
+   ```
+
+2. **Un navegador que permita HTTPS → localhost**: Chrome, Edge y Firefox tratan
+   `http://localhost` como origen confiable y permiten la llamada. Safari puede
+   bloquearla — en ese caso ejecuta la app en local con `npm run dev`
+   (totalmente soportado, mismas funcionalidades).
 
 ---
 
 ## Architecture Decision Records
 
-Full index with statuses: [docs/adr/README.md](docs/adr/README.md)
+Índice completo con estados: [docs/adr/README.md](docs/adr/README.md)
 
-| ADR                                                 | Decision                                          | Decision date |
-| --------------------------------------------------- | ------------------------------------------------- | ------------- |
-| [001](docs/adr/001-clean-architecture-hexagonal.md) | Clean Architecture + Hexagonal (Ports & Adapters) | 2026-07-04    |
-| [002](docs/adr/002-ollama-local-ai-provider.md)     | Ollama local as primary AI provider               | 2026-07-08    |
-| [003](docs/adr/003-localstorage-persistence.md)     | localStorage for session persistence              | 2026-07-09    |
-| [004](docs/adr/004-vitest-playwright-testing.md)    | Vitest + Playwright for testing                   | 2026-07-04    |
-| [005](docs/adr/005-distribucion-local-first.md)     | Local-first distribution, Ollama as requirement   | 2026-07-14    |
-
----
-
-## Master Material References
-
-This project applies concepts from the BIG School Master's in AI Development:
-
-| Module             | Concepts Applied                                           |
-| ------------------ | ---------------------------------------------------------- |
-| Clean Architecture | Dependency Inversion, Hexagonal (Ports & Adapters), SRP    |
-| SOLID Principles   | Single Responsibility, Open/Closed, Dependency Inversion   |
-| Prompt Engineering | Structured prompts with context, audience, quality rules   |
-| TDD                | Tests before implementation, RED-GREEN-REFACTOR            |
-| Design Patterns    | Strategy (AI providers), Repository (persistence), Factory |
-| DevOps             | GitHub Actions CI/CD, Vercel deployment, Sentry monitoring |
-| Cloud Computing    | Vercel serverless deployment, environment variables        |
-| Observability      | Sentry error tracking, release monitoring                  |
-| Accessibility      | ARIA labels, keyboard navigation, screen reader support    |
-| UX/UI              | Skeleton screens, microcopy, Framer Motion animations      |
-
-Full master materials at `~/bigschool_master/extracted_text/`.
+| ADR                                                 | Decisión                                          | Fecha de decisión |
+| --------------------------------------------------- | ------------------------------------------------- | ----------------- |
+| [001](docs/adr/001-clean-architecture-hexagonal.md) | Clean Architecture + Hexagonal (Ports & Adapters) | 2026-07-04        |
+| [002](docs/adr/002-ollama-local-ai-provider.md)     | Ollama local como provider de IA principal        | 2026-07-08        |
+| [003](docs/adr/003-localstorage-persistence.md)     | localStorage para la persistencia de sesiones     | 2026-07-09        |
+| [004](docs/adr/004-vitest-playwright-testing.md)    | Vitest + Playwright para testing                  | 2026-07-04        |
+| [005](docs/adr/005-distribucion-local-first.md)     | Distribución local-first, Ollama como requisito   | 2026-07-14        |
 
 ---
 
-## License
+## Referencias al material del máster
 
-BIG School Master's final project. Delivery deadline: 20 July 2026.
+Este proyecto aplica conceptos del Máster en Desarrollo con IA de BIG School:
+
+| Módulo             | Conceptos aplicados                                                 |
+| ------------------ | ------------------------------------------------------------------- |
+| Clean Architecture | Inversión de dependencias, Hexagonal (Ports & Adapters), SRP        |
+| Principios SOLID   | Single Responsibility, Open/Closed, Dependency Inversion            |
+| Prompt Engineering | Prompts estructurados con contexto, audiencia y reglas de calidad   |
+| TDD                | Tests antes de la implementación, RED-GREEN-REFACTOR                |
+| Patrones de diseño | Strategy (providers de IA), Repository (persistencia), Factory      |
+| DevOps             | CI/CD con GitHub Actions, despliegue en Vercel, Sentry              |
+| Cloud Computing    | Despliegue estático en Vercel, variables de entorno                 |
+| Observabilidad     | Sentry, monitorización de releases, latencia/tokens por llamada     |
+| LLMOps             | Evals con golden dataset, guardrails en código, prompts versionados |
+| Accesibilidad      | Etiquetas ARIA, navegación por teclado, lectores de pantalla        |
+| UX/UI              | Skeleton screens, microcopy, animaciones con Framer Motion          |
+
+---
+
+## Licencia
+
+Proyecto final del Máster en Desarrollo con IA de BIG School. Fecha límite de entrega: 20 de julio de 2026.
