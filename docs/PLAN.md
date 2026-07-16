@@ -48,8 +48,10 @@ Detectadas probando la app con Ollama real; validadas con los evals de contenido
 
 ### PR #13 — 16-17 Julio: Entrega
 
+- ~~Deploy Vercel con URL en README (requisito oficial 3)~~ ✅ 16 Julio:
+  <https://deeplearn-three.vercel.app>, verificado con la suite E2E contra la
+  URL pública y un smoke test real (Ollama local + CORS + flujo completo)
 - Repo GitHub público + CI verde en Actions (secrets `VERCEL_*` configurados)
-- Deploy Vercel con URL en README (requisito oficial 3)
 - Cobertura UI de páginas: tests de integración de QuizPage/LevelPage con Testing Library + `userEvent`
 - Slides con URL pública + vídeo explicativo con screencast (requisitos oficiales 4-5)
 - Revisión final contra SPEC §8 (criterios de aceptación)

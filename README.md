@@ -4,6 +4,8 @@
 
 Motor de aprendizaje Feynman que genera explicaciones en 5 niveles y quizzes para cualquier concepto, impulsado por IA local (Ollama). Construido con Clean Architecture + Hexagonal (Ports & Adapters) como proyecto final del Máster en Desarrollo con IA de BIG School.
 
+**🌐 App publicada**: <https://deeplearn-three.vercel.app> — requiere Ollama en tu máquina; ver [Usar la app desplegada](#usar-la-app-desplegada-el-local-first-se-mantiene).
+
 **Local-first** (ADR-005): la app funciona íntegramente en tu máquina — tu IA (Ollama), tus datos (localStorage). Sin cuentas, sin API keys, sin servidor.
 
 > **Sin login**: la aplicación no tiene registro ni inicio de sesión — es una decisión de diseño, no una carencia. Al ser local-first, los datos ya son personales por definición (viven en el navegador de cada usuario), así que no hay credenciales de prueba que entregar. Justificación completa en [ADR-005](docs/adr/005-distribucion-local-first.md).
@@ -212,15 +214,20 @@ llegue a tu Ollama local hacen falta dos cosas:
 
    ```bash
    # macOS (persiste para la app de Ollama)
-   launchctl setenv OLLAMA_ORIGINS "https://<tu-despliegue>.vercel.app"
+   launchctl setenv OLLAMA_ORIGINS "https://deeplearn-three.vercel.app"
    # o puntual, arrancando el servidor a mano
-   OLLAMA_ORIGINS="https://<tu-despliegue>.vercel.app" ollama serve
+   OLLAMA_ORIGINS="https://deeplearn-three.vercel.app" ollama serve
    ```
 
 2. **Un navegador que permita HTTPS → localhost**: Chrome, Edge y Firefox tratan
    `http://localhost` como origen confiable y permiten la llamada. Safari puede
    bloquearla — en ese caso ejecuta la app en local con `npm run dev`
    (totalmente soportado, mismas funcionalidades).
+
+3. **Aceptar el permiso de red local si Chrome lo pide**: las versiones
+   recientes de Chrome muestran un aviso de "acceso a la red local" la primera
+   vez que la página llama a `localhost`. Acéptalo para que la app pueda hablar
+   con tu Ollama.
 
 ---
 

@@ -8,3 +8,4 @@ coverage
 docs/EVALUACION_TFM.md
 test-results/
 playwright-report/
+.vercel
