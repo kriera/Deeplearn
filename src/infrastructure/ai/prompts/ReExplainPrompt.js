@@ -22,6 +22,8 @@ ${summary}
 
 Write a SIMPLER re-explanation and 5 new questions for level ${levelNumber} ("${level.label}").
 Focus especially on the exact weak areas above. Do not repeat the same wording from the failed questions.
+SIMPLER means easier words, shorter sentences and clearer analogies — NOT a shorter text.
+The re-explanation must still be complete and self-contained: between 150 and 250 words.
 
 Audience: ${level.audience}
 Explanation rules:

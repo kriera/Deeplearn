@@ -149,17 +149,12 @@ describe('SubmitQuiz', () => {
     expect(result.answerReview[0].correct).toBe(false)
   })
 
-  it('generates next level content on pass when aiProvider is passed', async () => {
+  it('does not generate next level content inline: the result returns immediately', async () => {
     const repo = { save: vi.fn((s) => s) }
     const aiProvider = {
-      generateExplanation: vi.fn(() => Promise.resolve({ explanation: 'Level 2 explanation' })),
-      generateQuiz: vi.fn(() =>
-        Promise.resolve({
-          questions: [
-            { id: 'nq1', text: 'NQ?', options: ['X', 'Y'], correctIndex: 0, explanation: 'X' },
-          ],
-        }),
-      ),
+      generateExplanation: vi.fn(),
+      generateQuiz: vi.fn(),
+      generateReExplanation: vi.fn(),
     }
     const answers = [
       { questionId: 'q1', selectedIndex: 0 },
@@ -171,10 +166,13 @@ describe('SubmitQuiz', () => {
 
     const result = await SubmitQuiz.execute(baseSession, answers, undefined, repo, aiProvider)
 
+    // La generación del siguiente nivel es responsabilidad de la UI (segundo
+    // plano); el usuario ve su resultado sin esperar al modelo.
     expect(result.passed).toBe(true)
-    expect(result.nextLevelContent).toBeTruthy()
-    expect(result.nextLevelContent.explanation).toBe('Level 2 explanation')
-    expect(aiProvider.generateExplanation).toHaveBeenCalledWith('Test', 2)
+    expect(result.unlockedNextLevel).toBe(true)
+    expect(result.session.levels[1].status).toBe('pending')
+    expect(aiProvider.generateExplanation).not.toHaveBeenCalled()
+    expect(aiProvider.generateQuiz).not.toHaveBeenCalled()
   })
 
   it('generates re-explanation on fail when aiProvider is passed', async () => {
@@ -226,29 +224,6 @@ describe('SubmitQuiz', () => {
     expect(result.answerReview[0].correctIndex).toBe(1)
     expect(result.answerReview[1].correct).toBe(false)
     expect(result.answerReview[1].correctIndex).toBe(-1)
-  })
-
-  it('marks next level as error and persists when generation fails on pass', async () => {
-    const repo = { save: vi.fn((s) => s) }
-    const aiProvider = {
-      generateExplanation: vi.fn(() => Promise.reject(new Error('model offline'))),
-    }
-    const answers = [
-      { questionId: 'q1', selectedIndex: 0 },
-      { questionId: 'q2', selectedIndex: 1 },
-      { questionId: 'q3', selectedIndex: 2 },
-      { questionId: 'q4', selectedIndex: 3 },
-      { questionId: 'q5', selectedIndex: 0 },
-    ]
-
-    const result = await SubmitQuiz.execute(baseSession, answers, undefined, repo, aiProvider)
-
-    expect(result.passed).toBe(true)
-    expect(result.unlockedNextLevel).toBe(true)
-    expect(result.nextLevelContent).toBeNull()
-    expect(result.session.levels[1].status).toBe('error')
-    expect(result.session.levels[1].generationError).toBe('model offline')
-    expect(repo.save).toHaveBeenCalled()
   })
 
   it('returns null re-explanation when provider fails on fail path', async () => {

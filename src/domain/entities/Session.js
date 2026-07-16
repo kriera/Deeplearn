@@ -79,6 +79,7 @@ const Session = {
           status: 'ready',
           explanation,
           questions,
+          generationError: null,
         })
       }
       return l

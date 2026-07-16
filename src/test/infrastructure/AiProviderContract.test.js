@@ -131,6 +131,27 @@ for (const c of CASES) {
 
       expect(result).toEqual({ explanation: 'con fences' })
     })
+
+    it('baraja las opciones del quiz manteniendo la respuesta correcta', async () => {
+      const questions = [1, 2, 3, 4, 5].map((n) => ({
+        id: `q${n}`,
+        question: `P${n}?`,
+        options: [`Correcta ${n}`, `B${n}`, `C${n}`, `D${n}`],
+        correct_index: 0,
+        explanation: 'x',
+      }))
+      respondWith(JSON.stringify({ questions }))
+
+      const result = await provider.generateQuiz('gravedad', 1, 'Una explicación.')
+
+      // Guardrail (evals): la correcta se preserva aunque cambie de posición
+      for (const [i, q] of result.questions.entries()) {
+        expect(q.options[q.correct_index]).toBe(`Correcta ${i + 1}`)
+        expect([...q.options].sort()).toEqual(
+          [`Correcta ${i + 1}`, `B${i + 1}`, `C${i + 1}`, `D${i + 1}`].sort(),
+        )
+      }
+    })
   })
 }
 
@@ -150,5 +171,33 @@ describe('OllamaProvider — thinking mode', () => {
     const result = await provider.generateExplanation('gravedad', 1)
 
     expect(result).toEqual({ explanation: 'desde thinking' })
+  })
+
+  it('pide esfuerzo de razonamiento bajo a los modelos gpt-oss (latencia)', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ message: { content: '{"explanation":"ok"}' } }),
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    const provider = new OllamaProvider({ model: 'gpt-oss:120b-cloud' })
+
+    await provider.generateExplanation('gravedad', 1)
+
+    const body = JSON.parse(fetchMock.mock.calls[0][1].body)
+    expect(body.think).toBe('low')
+  })
+
+  it('no envía think a modelos sin modo razonamiento (Ollama lo rechaza)', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ message: { content: '{"explanation":"ok"}' } }),
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    const provider = new OllamaProvider({ model: 'llama3.2' })
+
+    await provider.generateExplanation('gravedad', 1)
+
+    const body = JSON.parse(fetchMock.mock.calls[0][1].body)
+    expect(body).not.toHaveProperty('think')
   })
 })

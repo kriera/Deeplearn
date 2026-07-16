@@ -14,6 +14,7 @@ import {
   buildSRSPrompt,
 } from '../prompts/index.js'
 import { trackModelCall } from '../observability.js'
+import { shuffleQuestionOptions } from '../shuffleQuestionOptions.js'
 
 /** El modelo a veces envuelve el JSON en fences pese a las instrucciones. */
 function extractJson(text) {
@@ -37,12 +38,20 @@ export class BaseAiProvider {
 
   async generateQuiz(concept, levelNumber, explanation) {
     const prompt = buildLevelQuizPrompt(concept, levelNumber, explanation)
-    return this._call(prompt, this.budgets.quiz, 'quiz')
+    const result = await this._call(prompt, this.budgets.quiz, 'quiz')
+    return this._withShuffledOptions(result)
   }
 
   async generateReExplanation(concept, levelNumber, weakAreas) {
     const prompt = buildReExplainPrompt(concept, levelNumber, weakAreas)
-    return this._call(prompt, this.budgets.quiz, 're-explanation')
+    const result = await this._call(prompt, this.budgets.quiz, 're-explanation')
+    return this._withShuffledOptions(result)
+  }
+
+  /** Guardrail: la distribución de la respuesta correcta no depende del modelo. */
+  _withShuffledOptions(result) {
+    if (!Array.isArray(result?.questions)) return result
+    return { ...result, questions: result.questions.map((q) => shuffleQuestionOptions(q)) }
   }
 
   async generateSRSCards(concept, levelNumber, levelLabel) {

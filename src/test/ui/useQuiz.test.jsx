@@ -53,10 +53,7 @@ describe('useQuiz (integración hook → SubmitQuiz)', () => {
     vi.clearAllMocks()
   })
 
-  it('aprueba el quiz, desbloquea el siguiente nivel y genera su contenido vía IA', async () => {
-    fakeProvider.generateExplanation.mockResolvedValue({ explanation: 'Explicación nivel 2' })
-    fakeProvider.generateQuiz.mockResolvedValue({ questions: buildQuestions('l2') })
-
+  it('aprueba el quiz y desbloquea el siguiente nivel sin esperar al modelo', async () => {
     const session = buildSession()
     const { result } = renderHook(() => useQuiz())
 
@@ -72,9 +69,9 @@ describe('useQuiz (integración hook → SubmitQuiz)', () => {
     expect(outcome.passed).toBe(true)
     expect(outcome.score).toBe(5)
     expect(outcome.unlockedNextLevel).toBe(true)
-    expect(outcome.nextLevelContent.status).toBe('ready')
-    // El provider llega al caso de uso en la posición correcta
-    expect(fakeProvider.generateExplanation).toHaveBeenCalledWith('fotosíntesis', 2)
+    // El contenido del siguiente nivel se genera en segundo plano desde App,
+    // no dentro del envío del quiz
+    expect(fakeProvider.generateExplanation).not.toHaveBeenCalled()
     expect(result.current.quizResult).toEqual(outcome)
   })
 
@@ -146,9 +143,6 @@ describe('useQuiz (integración hook → SubmitQuiz)', () => {
   })
 
   it('persiste la sesión actualizada en el repositorio', async () => {
-    fakeProvider.generateExplanation.mockResolvedValue({ explanation: 'Explicación nivel 2' })
-    fakeProvider.generateQuiz.mockResolvedValue({ questions: buildQuestions('l2') })
-
     const session = buildSession()
     const { result } = renderHook(() => useQuiz())
 
@@ -160,6 +154,7 @@ describe('useQuiz (integración hook → SubmitQuiz)', () => {
     expect(stored).toHaveLength(1)
     expect(stored[0].id).toBe(session.id)
     expect(stored[0].attempts).toHaveLength(1)
-    expect(stored[0].levels[1].status).toBe('ready')
+    // Desbloqueado pero pendiente de generación (que lanza App en segundo plano)
+    expect(stored[0].levels[1].status).toBe('pending')
   })
 })

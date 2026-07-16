@@ -25,12 +25,18 @@ export function LevelPage({ session, levelIndex, onGoToQuiz, onGoToEntry, onRetr
   const isLocked = levelIndex >= session.levelsUnlocked
   const hasError = level.status === 'error' && !level.explanation
   const isGenerating = !hasError && !level.explanation
+  // La explicación llega antes que el quiz (generación progresiva):
+  const quizReady = level.questions?.length > 0
+  const quizFailed = level.status === 'error' && Boolean(level.explanation) && !quizReady
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-8">
         <BackButton onClick={onGoToEntry} />
-        <p className="text-slate-400 text-sm font-medium capitalize truncate max-w-[60%]">
+        <p
+          className="text-slate-400 text-sm font-medium capitalize truncate max-w-[60%]"
+          title={session.concept}
+        >
           {session.concept}
         </p>
       </div>
@@ -88,14 +94,36 @@ export function LevelPage({ session, levelIndex, onGoToQuiz, onGoToEntry, onRetr
         )}
       </div>
 
-      {!isLocked && !hasError && (
+      {!isLocked && !hasError && quizFailed && (
+        <div
+          role="alert"
+          className="p-4 rounded-2xl bg-slate-800/50 border border-slate-700 text-center"
+        >
+          <p className="text-slate-200 font-medium mb-2">
+            No pudimos generar el quiz de este nivel.
+          </p>
+          <p className="text-slate-400 text-sm mb-4">
+            Comprueba que Ollama esté en ejecución y vuelve a intentarlo.
+          </p>
+          <Button
+            variant="secondary"
+            onClick={() => onRetry?.(levelIndex)}
+            loading={regenerating}
+            disabled={regenerating}
+          >
+            {regenerating ? 'Generando…' : 'Reintentar quiz'}
+          </Button>
+        </div>
+      )}
+
+      {!isLocked && !hasError && !quizFailed && (
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <Button variant="primary" onClick={onGoToQuiz} disabled={isGenerating}>
-            Responder quiz →
+          <Button variant="primary" onClick={onGoToQuiz} disabled={isGenerating || !quizReady}>
+            {!isGenerating && !quizReady ? 'Preparando quiz…' : 'Responder quiz →'}
           </Button>
           <p className="text-center text-xs text-slate-400 mt-3">
             Necesitas 4/5 para desbloquear el siguiente nivel

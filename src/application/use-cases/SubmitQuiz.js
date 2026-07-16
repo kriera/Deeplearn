@@ -8,7 +8,6 @@
  */
 
 import { Session } from '../../domain/entities/Session.js'
-import { GenerateLevelContent } from './GenerateLevelContent.js'
 
 const PASS_THRESHOLD = 4
 
@@ -69,27 +68,13 @@ const SubmitQuiz = {
     let updated = Session.recordAttempt(session, attempt)
 
     let unlockedNextLevel = false
-    let nextLevelContent = null
     let reExplanation = null
 
     if (passed) {
+      // El contenido del siguiente nivel se genera en segundo plano desde la
+      // UI (GenerateLevelContent): el resultado del quiz no espera al modelo.
       updated = Session.unlockNextLevel(updated)
       unlockedNextLevel = updated.levelsUnlocked > session.levelsUnlocked
-
-      // Generate next level content via AI
-      if (unlockedNextLevel && aiProvider) {
-        const nextIndex = idx + 1
-        try {
-          updated = await GenerateLevelContent.execute(updated, nextIndex, aiProvider, sessionRepository)
-          nextLevelContent = updated.levels[nextIndex]
-        } catch (err) {
-          const levels = updated.levels.map((l, i) =>
-            i === nextIndex ? { ...l, status: 'error', generationError: err.message } : l,
-          )
-          updated = { ...updated, levels }
-          await sessionRepository.save(updated)
-        }
-      }
     } else if (aiProvider) {
       // Generate re-explanation for failed quiz
       try {
@@ -113,7 +98,6 @@ const SubmitQuiz = {
       answerReview,
       weakAreas,
       unlockedNextLevel,
-      nextLevelContent,
       reExplanation,
       session: updated,
     }

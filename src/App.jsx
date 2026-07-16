@@ -32,6 +32,7 @@ export default function App() {
     error,
     startSession,
     regenerateLevel,
+    generateLevel,
     saveEvaluation,
     restoreSession,
     refreshSession,
@@ -67,8 +68,13 @@ export default function App() {
   const handleSubmitQuiz = async (session, answers) => {
     const result = await submitQuiz(session, answers, levelIndex)
     if (result?.passed) {
-      await refreshSession()
-      // Las tarjetas de repaso se generan en segundo plano; su fallo no bloquea el flujo
+      const fresh = await refreshSession()
+      // En segundo plano, sin bloquear el resultado del quiz: contenido del
+      // siguiente nivel y tarjetas de repaso. Sus fallos no rompen el flujo
+      // (el nivel queda marcado 'error' y ofrece reintentar).
+      if (result.unlockedNextLevel && fresh) {
+        generateLevel(fresh, levelIndex + 1)
+      }
       generateForLevel(session, levelIndex + 1).catch(() => {})
     }
     return result
@@ -120,7 +126,10 @@ export default function App() {
           </button>
           {currentSession && (
             <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-400 capitalize truncate max-w-[120px]">
+              <span
+                className="text-xs text-slate-400 capitalize truncate max-w-[45vw] sm:max-w-xs"
+                title={currentSession.concept}
+              >
                 {currentSession.concept}
               </span>
             </div>

@@ -82,4 +82,12 @@ describe('buildReExplainPrompt — reglas de calidad del quiz', () => {
     expect(prompt).toContain('Spread correct_index across 0, 1, 2, and 3.')
     expect(prompt).toContain('Wrong options must be plausible')
   })
+
+  it('aclara que simpler no significa más corto (regresión: eval detectó re-explicaciones de <100 palabras)', () => {
+    const prompt = buildReExplainPrompt('black holes', 1, [
+      { question: 'What is the event horizon?' },
+    ])
+    expect(prompt).toContain('NOT a shorter text')
+    expect(prompt).toContain('between 150 and 250 words')
+  })
 })

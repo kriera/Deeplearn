@@ -24,15 +24,23 @@ export class OllamaProvider extends BaseAiProvider {
   }
 
   _body(prompt, maxTokens) {
-    return {
+    const body = {
       model: this.model,
       messages: [
         { role: 'system', content: 'You are a JSON API. Respond ONLY with valid JSON.' },
         { role: 'user', content: prompt },
       ],
       stream: false,
-      options: { num_predict: maxTokens, thinking: { enabled: false } },
+      options: { num_predict: maxTokens },
     }
+    // Los modelos gpt-oss razonan antes de responder; con esfuerzo 'low'
+    // la latencia baja mucho sin degradar tareas de generación guiada.
+    // Solo se envía si el modelo lo soporta: Ollama rechaza `think` en
+    // modelos sin modo razonamiento.
+    if (/gpt-oss/i.test(this.model)) {
+      body.think = 'low'
+    }
+    return body
   }
 
   _content(data) {

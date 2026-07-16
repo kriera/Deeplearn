@@ -1,14 +1,14 @@
 # DeepLearn — Plan de Implementación
 
 > **Deadline de entrega del TFM:** 20 Julio 2026 (cierre interno: 18 Julio)
-> **Última actualización:** 15 Julio 2026
+> **Última actualización:** 16 Julio 2026
 
-## Estado Actual (15 Julio)
+## Estado Actual (16 Julio)
 
-- **12 PRs completados** (4-15 Julio)
-- **Suite en verde**: 166 tests (unit + integración + contrato de providers) + 4 E2E deterministas
-- **App funcional** — SRS operativo, 5 pantallas, code-splitting, observabilidad LLM
-- **Pendiente para la entrega:** repo GitHub público, deploy Vercel con URL, ejecutar `npm run eval` con Ollama activo, slides, vídeo explicativo
+- **12 PRs completados** (4-15 Julio) + mejoras de percepción de latencia tras pruebas de usuario (16 Julio)
+- **Suite en verde**: 183 tests (unit + integración + contrato de providers) + 4 E2E deterministas + evals de contenido contra modelo real
+- **App funcional** — SRS operativo, 5 pantallas, code-splitting, observabilidad LLM, generación progresiva en segundo plano
+- **Pendiente para la entrega:** repo GitHub público, deploy Vercel con URL, slides, vídeo explicativo
 
 ## PRs Completados
 
@@ -26,7 +26,23 @@
 | #9  | Jul 13 | `5797643` | Deploy Vercel, Sentry, CI/CD auto-deploy                                        |
 | #10 | Jul 14 | `0c2f7b5` | Docs, UX, A11Y, skeleton screens, microcopy español                             |
 | #11 | Jul 14 | `ab43dac` | Fix wiring quiz, estados de error, contraste AA, local-first (ADR-005)          |
-| #12 | Jul 15 | —         | SRS funcional, contrato de providers, observabilidad LLM, evals, code-splitting |
+| #12 | Jul 15 | `412a53e` | SRS funcional, contrato de providers, observabilidad LLM, evals, code-splitting |
+
+### Mejoras tras pruebas de usuario (16 Julio)
+
+Detectadas probando la app con Ollama real; validadas con los evals de contenido:
+
+- **Generación progresiva**: la explicación se muestra en cuanto llega y el quiz
+  se genera mientras el usuario lee; el resultado del quiz ya no espera a que se
+  genere el siguiente nivel (pasa a segundo plano). Espera percibida ~90s → ~20-30s.
+- **`think: 'low'` en Ollama** para modelos gpt-oss (el parámetro anterior no
+  existía en la API): latencia del modelo reducida a ~la mitad (evals: suite C
+  de ~50s a ~13s por caso).
+- **Guardrail de barajado de opciones** (`shuffleQuestionOptions`): la
+  distribución de la respuesta correcta ya no depende de que el modelo obedezca
+  el prompt (fallo detectado por los evals con razonamiento bajo).
+- Concepto truncado en la cabecera: tooltip con el texto completo.
+- ADR-005 ampliado + README: uso de la app desplegada con `OLLAMA_ORIGINS`.
 
 ## Trabajo restante (16-18 Julio)
 
