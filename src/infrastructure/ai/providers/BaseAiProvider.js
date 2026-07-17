@@ -90,13 +90,13 @@ export class BaseAiProvider {
   _headers() {
     return { 'Content-Type': 'application/json' }
   }
-  _body(prompt, maxTokens) {
+  _body(_prompt, _maxTokens) {
     throw new Error(`${this.name}: _body() not implemented`)
   }
-  _content(data) {
+  _content(_data) {
     throw new Error(`${this.name}: _content() not implemented`)
   }
-  _usage(data) {
+  _usage(_data) {
     return {}
   }
 }

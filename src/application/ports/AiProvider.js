@@ -10,7 +10,7 @@ const AiProvider = {
    * Genera una explicación para un nivel.
    * @returns {Promise<{explanation: string}>}
    */
-  generateExplanation(concept, levelNumber) {
+  generateExplanation(_concept, _levelNumber) {
     throw new Error('AiProvider.generateExplanation() not implemented')
   },
 
@@ -18,7 +18,7 @@ const AiProvider = {
    * Genera un quiz (5 preguntas) para un nivel.
    * @returns {Promise<{questions: Array}>}
    */
-  generateQuiz(concept, levelNumber, explanation) {
+  generateQuiz(_concept, _levelNumber, _explanation) {
     throw new Error('AiProvider.generateQuiz() not implemented')
   },
 
@@ -26,7 +26,7 @@ const AiProvider = {
    * Genera una re-explicación simplificada tras un fallo.
    * @returns {Promise<{explanation: string, questions: Array}>}
    */
-  generateReExplanation(concept, levelNumber, weakAreas) {
+  generateReExplanation(_concept, _levelNumber, _weakAreas) {
     throw new Error('AiProvider.generateReExplanation() not implemented')
   },
 
@@ -34,7 +34,7 @@ const AiProvider = {
    * Genera tarjetas SRS para un nivel superado.
    * @returns {Promise<{cards: Array}>}
    */
-  generateSRSCards(concept, levelNumber, levelLabel) {
+  generateSRSCards(_concept, _levelNumber, _levelLabel) {
     throw new Error('AiProvider.generateSRSCards() not implemented')
   },
 }

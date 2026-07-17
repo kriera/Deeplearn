@@ -21,7 +21,8 @@ Elegimos la **opción 1: distribución local-first con Ollama como requisito de 
 
 ## Justificación
 
-- **Privacidad**: los conceptos que el usuario estudia y sus resultados no salen de su máquina (criterio del máster: privacidad y control al elegir proveedor de IA).
+- **Privacidad y control**: no hay servidor propio intermediando ni API keys de pago que gestionar; el usuario elige y controla el proveedor de IA (criterio del máster). La ejecución (navegador + Ollama) y la persistencia (localStorage) ocurren en su máquina.
+  - **Matiz honesto (revisado 2026-07-17):** que Ollama sea local **no** implica automáticamente que los prompts no salgan de la máquina. El modelo por defecto `gpt-oss:120b-cloud` es un modelo `-cloud`: Ollama actúa de pasarela y **reenvía los prompts a `ollama.com`** (requiere `ollama signin`). Se mantiene por defecto por su calidad de contenido. Para privacidad total (prompts que no salen de la máquina) el usuario debe configurar un modelo genuinamente local (p. ej. `VITE_AI_MODEL=llama3.2`), soportado por el mismo composition root. Es decir, "local-first" aquí significa _sin backend propio ni secretos_, no _cero telemetría del proveedor de modelo_ con la configuración por defecto.
 - **Coste cero y sin secretos**: no hay API key que proteger, rotar ni pagar; elimina el riesgo de coste descontrolado.
 - **Coherente con ADR-002 y ADR-003**: modelo local + persistencia en localStorage = aplicación completa sin backend propio.
 - La opción 2 exige asumir coste por visitante anónimo y endurecer el proxy (auth, CORS, rate limit distribuido); la opción 3 expone una key de pago en el navegador — ambas desproporcionadas para el alcance actual.

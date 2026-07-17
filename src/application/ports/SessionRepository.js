@@ -7,12 +7,12 @@
 
 const SessionRepository = {
   /** @returns {Promise<import('../../domain/entities/Session.js').Session>} */
-  save(session) {
+  save(_session) {
     throw new Error('SessionRepository.save() not implemented')
   },
 
   /** @returns {Promise<import('../../domain/entities/Session.js').Session|null>} */
-  findById(id) {
+  findById(_id) {
     throw new Error('SessionRepository.findById() not implemented')
   },
 
@@ -22,12 +22,12 @@ const SessionRepository = {
   },
 
   /** @returns {Promise<import('../../domain/entities/Session.js').Session|null>} */
-  findByConcept(concept) {
+  findByConcept(_concept) {
     throw new Error('SessionRepository.findByConcept() not implemented')
   },
 
   /** @returns {Promise<void>} */
-  deleteById(id) {
+  deleteById(_id) {
     throw new Error('SessionRepository.deleteById() not implemented')
   },
 }

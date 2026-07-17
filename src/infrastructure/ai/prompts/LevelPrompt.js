@@ -50,7 +50,7 @@ ${t.rules}:
 ${level.rules.map((r, i) => `  ${i + 1}. ${r}`).join('\n')}
 
 ${t.contentRules}:
-${t.contentItems.map((r, i) => `  - ${r}`).join('\n')}
+${t.contentItems.map((r) => `  - ${r}`).join('\n')}
 
 ${t.json}:
 {

@@ -101,14 +101,7 @@ describe('SrsService', () => {
   })
 
   it('handles cards with missing ease/interval defaults', () => {
-    const card = SrsService.createCard({
-      id: 'c1',
-      concept: 'Test',
-      levelLabel: 'Basic',
-      front: 'Q?',
-      back: 'A.',
-    })
-    // Simulate a card with missing fields
+    // Una tarjeta sin los campos ease/interval: el servicio debe aplicar defaults
     const partial = { id: 'c2', concept: 'T', levelLabel: 'Basic', front: 'Q', back: 'A' }
     const remembered = SrsService.remember(partial)
     expect(remembered.ease).toBe(2.6)

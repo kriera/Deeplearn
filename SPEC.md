@@ -29,7 +29,7 @@ DeepLearn es una aplicación web de aprendizaje asistido por IA basada en la **T
 ### 2.3 Tarjetas SRS (Spaced Repetition)
 
 - Al pasar un nivel, se generan tarjetas flash de repaso
-- Algoritmo SM-2: intervalo creciente según aciertos/fallos
+- Algoritmo inspirado en SM-2 (variante binaria): intervalo creciente según aciertos/fallos
 - Las tarjetas vencidas aparecen en un cajón de repaso flotante
 
 ### 2.4 Proveedores de IA
@@ -129,7 +129,7 @@ Entry → Input Concept → Generate Level 1 → Read Explanation
 
 - [x] Un estudiante puede completar los 5 niveles para un concepto nuevo — E2E `critical-flow.spec.js` + pruebas de usuario con Ollama real
 - [x] Los quizzes validan comprensión real (no solo memorización) — `quizRules` por nivel en `Level.js` + evals de contenido
-- [x] Las tarjetas SRS aparecen vencidas según algoritmo SM-2 — `SrsService` (SM-2) con tests de dominio
+- [x] Las tarjetas SRS aparecen vencidas según el algoritmo de repaso — `SrsService` (inspirado en SM-2, variante binaria) con tests de dominio
 - [x] El contenido generado es coherente con el nivel solicitado — evals de contenido contra modelo real (`docs/evals.md`)
 - [x] La app funciona sin errores de consola — verificado por la suite E2E y las pruebas de usuario (16 Jul)
 - [x] Cobertura de tests: domain 100%, UI 80% — umbrales forzados en `vite.config.js`; `vitest run --coverage` pasa (domain/application 100%, UI ≥80%)

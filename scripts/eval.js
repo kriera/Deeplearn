@@ -10,6 +10,12 @@
  *
  * Uso: npm run eval  (requiere Ollama en marcha; ~5-15 min según el modelo)
  * Salida: informe por consola + docs/evals.md
+ *
+ * IMPORTANTE: es una herramienta MANUAL y NO DETERMINISTA. Se ejecuta bajo
+ * demanda contra un modelo generativo real, por lo que el contenido —y por tanto
+ * el número exacto de checks— puede variar entre ejecuciones. Por eso NO forma
+ * parte del CI (evitar un gate inestable); su resultado es orientativo, no una
+ * garantía reproducible al 100%. Las cotas de longitud llevan margen por nivel.
  */
 
 import { writeFileSync } from 'node:fs'
@@ -216,7 +222,12 @@ async function main() {
     await runCase('B·nivel5', concept, async () => {
       const { explanation } = await provider.generateExplanation(concept, 5)
       const { questions } = await provider.generateQuiz(concept, 5, explanation)
-      const checks = [...checkExplanation(explanation, lang), ...checkQuiz(questions, lang)]
+      // Nivel Experto: las explicaciones son legítimamente más largas y densas,
+      // así que la cota superior es mayor que en el nivel Elemental (Suite A).
+      const checks = [
+        ...checkExplanation(explanation, lang, { min: 80, max: 260 }),
+        ...checkQuiz(questions, lang),
+      ]
       const info = []
       const l1 = level1Explanations.get(concept)
       if (l1) {
@@ -266,6 +277,11 @@ async function main() {
     `> **Ejecutado:** ${new Date().toISOString()}`,
     `> **Modelo:** ${MODEL}`,
     `> **Resultado:** ${passed}/${total} checks OK · ${failures} fallos`,
+    '',
+    '> ⚠️ **Herramienta manual y no determinista.** Se ejecuta bajo demanda contra',
+    '> un modelo generativo real; el contenido y el recuento de checks pueden variar',
+    '> entre ejecuciones. No forma parte del CI (evita un gate inestable); su',
+    '> resultado es orientativo, no una garantía reproducible al 100%.',
     '',
     '| Suite | Caso | Checks OK | Fallos | Duración |',
     '|-------|------|-----------|--------|----------|',

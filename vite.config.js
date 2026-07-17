@@ -26,6 +26,19 @@ export default defineConfig({
     exclude: [...configDefaults.exclude, 'e2e/**'],
     coverage: {
       provider: 'v8',
+      // Medición completa (no solo los archivos que un test importa): así los
+      // umbrales por capa no se pueden cumplir "en vacío" dejando fuera archivos
+      // sin test. Se excluyen únicamente entrypoints y wiring sin lógica propia.
+      all: true,
+      include: ['src/**'],
+      exclude: [
+        'src/main.jsx', // bootstrap de la app
+        'src/App.jsx', // shell de enrutado de pantallas
+        'src/composition/**', // composition root (solo cableado de dependencias)
+        'src/infrastructure/sentry.js', // init de observabilidad
+        'src/test/**',
+        '**/*.test.{js,jsx}',
+      ],
       thresholds: {
         // Core business logic: 100%
         './src/domain/**': { lines: 100, functions: 100, branches: 100, statements: 100 },

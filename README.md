@@ -6,7 +6,9 @@ Motor de aprendizaje Feynman que genera explicaciones en 5 niveles y quizzes par
 
 **🌐 App publicada**: <https://deeplearn-three.vercel.app> — requiere Ollama en tu máquina; ver [Usar la app desplegada](#usar-la-app-desplegada-el-local-first-se-mantiene).
 
-**Local-first** (ADR-005): la app funciona íntegramente en tu máquina — tu IA (Ollama), tus datos (localStorage). Sin cuentas, sin API keys, sin servidor.
+**Local-first** (ADR-005): sin servidor propio ni API keys que gestionar. La SPA corre en tu navegador y llama a **tu** Ollama; tus sesiones viven en `localStorage`, sin login.
+
+> **Matiz de privacidad (importante):** el modelo por defecto `gpt-oss:120b-cloud` usa Ollama como _pasarela_ hacia la nube de Ollama — los prompts **salen a `ollama.com`** y requiere `ollama signin`. Se elige por defecto por su calidad. Para privacidad **100 % en tu máquina** (los prompts no salen), configura un modelo genuinamente local, p. ej. `VITE_AI_MODEL=llama3.2`. La ejecución (navegador + Ollama) y la persistencia (localStorage) son locales en ambos casos; lo que cambia es si los _prompts_ viajan al modelo en la nube. Detalle en [ADR-005](docs/adr/005-distribucion-local-first.md).
 
 > **Sin login**: la aplicación no tiene registro ni inicio de sesión — es una decisión de diseño, no una carencia. Al ser local-first, los datos ya son personales por definición (viven en el navegador de cada usuario), así que no hay credenciales de prueba que entregar. Justificación completa en [ADR-005](docs/adr/005-distribucion-local-first.md).
 
@@ -19,7 +21,7 @@ Motor de aprendizaje Feynman que genera explicaciones en 5 niveles y quizzes par
 - **Re-explicación adaptativa**: si suspendes un quiz, el motor re-explica el nivel con una analogía distinta, centrada en tus áreas débiles.
 - **Generación progresiva**: la explicación se muestra en cuanto está lista y el quiz se genera en segundo plano mientras lees; el siguiente nivel se prepara mientras ves tu resultado.
 - **Consciente del idioma**: los conceptos escritos en español generan contenido íntegramente en español; los conceptos en inglés, en inglés.
-- **Repaso espaciado (SRS)**: superar un nivel genera tarjetas de repaso programadas con el algoritmo SM-2; repásalas desde la pantalla de inicio o al completar un concepto.
+- **Repaso espaciado (SRS)**: superar un nivel genera tarjetas de repaso programadas con un algoritmo inspirado en SM-2 (variante binaria: recordada/olvidada sobre el factor de facilidad e intervalo); repásalas desde la pantalla de inicio o al completar un concepto.
 - **Persistencia de sesiones**: las sesiones viven en localStorage; retoma cualquier concepto reciente desde la pantalla de inicio.
 - **Autoevaluación**: valora tu comprensión y deja feedback al completar un concepto.
 
@@ -81,7 +83,7 @@ Motor de aprendizaje Feynman que genera explicaciones en 5 niveles y quizzes par
 
 ```bash
 # 1. Clonar
-git clone <repo-url> && cd deeplearn
+git clone https://github.com/kriera/Deeplearn.git && cd Deeplearn
 
 # 2. Instalar (NODE_ENV=development necesario para las devDependencies)
 NODE_ENV=development npm install
@@ -176,6 +178,8 @@ NODE_ENV=development npm run test:coverage
 npx playwright test
 
 # Evals de calidad de contenido (LLMOps — requiere Ollama activo; escribe docs/evals.md)
+# Herramienta MANUAL y NO determinista: corre contra el modelo real, el recuento de
+# checks puede variar entre ejecuciones. Por eso no está en el CI; su resultado es orientativo.
 npm run eval
 ```
 
@@ -184,8 +188,8 @@ npm run eval
 **Salida esperada** de `NODE_ENV=development npm test`:
 
 ```
- Test Files  27 passed (27)
-      Tests  195 passed (195)
+ Test Files  30 passed (30)
+      Tests  208 passed (208)
 ```
 
 Los E2E corren en la CI en cada push (4 escenarios: camino feliz, quiz suspendido + reintento, navegación y estado de error sin modelo disponible).

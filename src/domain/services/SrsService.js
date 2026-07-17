@@ -1,5 +1,10 @@
 /**
- * SrsService — Servicio de dominio para el algoritmo SM-2 de repaso espaciado.
+ * SrsService — Servicio de dominio de repaso espaciado, inspirado en SM-2.
+ *
+ * Nota: es una variante binaria simplificada de SM-2. Usa el factor de facilidad
+ * (ease) y el intervalo multiplicativo del algoritmo original, pero sustituye las
+ * calificaciones de calidad 0-5 y la fórmula canónica del EF por dos acciones
+ * (recordada / olvidada). Suficiente para el alcance del proyecto y testeable.
  *
  * Clean Architecture (Módulo 2): Servicio de dominio puro, sin dependencias externas.
  * SRP (Módulo 1): Única responsabilidad: gestionar el scheduling de tarjetas SRS.
