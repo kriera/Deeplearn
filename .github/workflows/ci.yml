@@ -40,13 +40,15 @@ jobs:
       - run: npm ci
         env:
           NODE_ENV: development
-      - run: npm run build
-        env:
-          VITE_APP_VERSION: ${{ github.sha }}
+      # CLI oficial de Vercel: la action amondnet/vercel-action@v25 fija una
+      # versión del CLI que la API de Vercel ya rechaza (exige ≥47.2.2).
       - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--prod'
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VITE_APP_VERSION: ${{ github.sha }}
+        run: |
+          npm i -g vercel@latest
+          vercel pull --yes --environment=production --token="${{ secrets.VERCEL_TOKEN }}"
+          vercel build --prod --token="${{ secrets.VERCEL_TOKEN }}"
+          vercel deploy --prebuilt --prod --token="${{ secrets.VERCEL_TOKEN }}"
