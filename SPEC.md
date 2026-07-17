@@ -127,11 +127,11 @@ Entry → Input Concept → Generate Level 1 → Read Explanation
 
 ## 8. Criterios de Aceptación del Proyecto Final
 
-- [ ] Un estudiante puede completar los 5 niveles para un concepto nuevo
-- [ ] Los quizzes validan comprensión real (no solo memorización)
-- [ ] Las tarjetas SRS aparecen vencidas según algoritmo SM-2
-- [ ] El contenido generado es coherente con el nivel solicitado
-- [ ] La app funciona sin errores de consola
-- [ ] Cobertura de tests: domain 100%, UI 80%
-- [ ] CI pasa en cada PR
-- [ ] Despliegue en Vercel funcional
+- [x] Un estudiante puede completar los 5 niveles para un concepto nuevo — E2E `critical-flow.spec.js` + pruebas de usuario con Ollama real
+- [x] Los quizzes validan comprensión real (no solo memorización) — `quizRules` por nivel en `Level.js` + evals de contenido
+- [x] Las tarjetas SRS aparecen vencidas según algoritmo SM-2 — `SrsService` (SM-2) con tests de dominio
+- [x] El contenido generado es coherente con el nivel solicitado — evals de contenido contra modelo real (`docs/evals.md`)
+- [x] La app funciona sin errores de consola — verificado por la suite E2E y las pruebas de usuario (16 Jul)
+- [x] Cobertura de tests: domain 100%, UI 80% — umbrales forzados en `vite.config.js`; `vitest run --coverage` pasa (domain/application 100%, UI ≥80%)
+- [ ] CI pasa en cada PR — workflow `.github/workflows/ci.yml` listo; pendiente de push al repo público de GitHub para ejecutarse en Actions
+- [x] Despliegue en Vercel funcional — <https://deeplearn-three.vercel.app>

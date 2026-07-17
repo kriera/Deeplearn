@@ -136,7 +136,7 @@ deeplearn/
 │   │   ├── atoms/           # Button, Badge, ProgressBar, BackButton, SkeletonCard
 │   │   ├── hooks/           # useSession, useQuiz, useSrs
 │   │   ├── i18n/            # levelLabels, errorMessages (microcopy de errores)
-│   │   └── pages/           # ConceptEntryPage, LevelPage, QuizPage, CompletionPage
+│   │   └── pages/           # ConceptEntryPage, LevelPage, QuizPage, CompletionPage, SrsReviewPage
 │   ├── test/                # Tests unitarios + integración (Vitest)
 │   ├── App.jsx              # Componente raíz con enrutado de pantallas
 │   ├── main.jsx             # Punto de entrada + ErrorBoundary de Sentry
@@ -184,8 +184,8 @@ npm run eval
 **Salida esperada** de `NODE_ENV=development npm test`:
 
 ```
- Test Files  25 passed (25)
-      Tests  184 passed (184)
+ Test Files  27 passed (27)
+      Tests  195 passed (195)
 ```
 
 Los E2E corren en la CI en cada push (4 escenarios: camino feliz, quiz suspendido + reintento, navegación y estado de error sin modelo disponible).
@@ -291,4 +291,6 @@ Este proyecto aplica conceptos del Máster en Desarrollo con IA de BIG School:
 
 ## Licencia
 
-Proyecto final del Máster en Desarrollo con IA de BIG School. Fecha límite de entrega: 20 de julio de 2026.
+© 2026 Kilian Riera. Todos los derechos reservados.
+
+Proyecto final del Máster en Desarrollo con IA de BIG School (fecha límite de entrega: 20 de julio de 2026). El código se publica con fines de evaluación y muestra; no se concede ninguna licencia de uso, copia, modificación ni distribución sin permiso expreso del autor.

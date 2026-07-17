@@ -52,7 +52,9 @@ Detectadas probando la app con Ollama real; validadas con los evals de contenido
   <https://deeplearn-three.vercel.app>, verificado con la suite E2E contra la
   URL pública y un smoke test real (Ollama local + CORS + flujo completo)
 - Repo GitHub público + CI verde en Actions (secrets `VERCEL_*` configurados)
-- Cobertura UI de páginas: tests de integración de QuizPage/LevelPage con Testing Library + `userEvent`
+- ~~Cobertura UI de páginas: tests de integración de QuizPage/LevelPage con Testing Library + `userEvent`~~ ✅ 17 Julio:
+  `LevelPage.test.jsx` (7 casos) + `QuizPage.test.jsx` (6 casos); suite 184 → 195 tests; umbrales de coverage en verde
+- ~~Revisión final contra SPEC §8 (criterios de aceptación)~~ ✅ 17 Julio: 7/8 criterios cumplidos y verificados; solo "CI pasa en cada PR" queda pendiente del push a GitHub
 - Slides con URL pública + vídeo explicativo con screencast (requisitos oficiales 4-5)
 - Revisión final contra SPEC §8 (criterios de aceptación)
 
