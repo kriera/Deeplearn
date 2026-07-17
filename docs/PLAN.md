@@ -51,7 +51,8 @@ Detectadas probando la app con Ollama real; validadas con los evals de contenido
 - ~~Deploy Vercel con URL en README (requisito oficial 3)~~ ✅ 16 Julio:
   <https://deeplearn-three.vercel.app>, verificado con la suite E2E contra la
   URL pública y un smoke test real (Ollama local + CORS + flujo completo)
-- Repo GitHub público + CI verde en Actions (secrets `VERCEL_*` configurados)
+- ~~Repo GitHub público + CI verde en Actions (secrets `VERCEL_*` configurados)~~ ✅ 17 Julio:
+  <https://github.com/kriera/Deeplearn>; run verde (`quality` + `deploy`); deploy migrado al CLI oficial `vercel@latest`
 - ~~Cobertura UI de páginas: tests de integración de QuizPage/LevelPage con Testing Library + `userEvent`~~ ✅ 17 Julio:
   `LevelPage.test.jsx` (7 casos) + `QuizPage.test.jsx` (6 casos); suite 184 → 195 tests; umbrales de coverage en verde
 - ~~Revisión final contra SPEC §8 (criterios de aceptación)~~ ✅ 17 Julio: 7/8 criterios cumplidos y verificados; solo "CI pasa en cada PR" queda pendiente del push a GitHub
