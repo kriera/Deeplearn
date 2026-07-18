@@ -37,9 +37,10 @@ export default function App() {
     restoreSession,
     refreshSession,
     goToEntry,
+    loadDemoSession,
   } = useSession()
   const { quizResult, submitting, error: quizError, submitQuiz, clearQuizResult } = useQuiz()
-  const { dueCards, rememberCard, forgetCard, generateForLevel } = useSrs()
+  const { dueCards, rememberCard, forgetCard, generateForLevel, seedDemoCards } = useSrs()
   const [screen, setScreen] = useState('entry')
   const [levelIndex, setLevelIndex] = useState(0)
   const [srsReturnScreen, setSrsReturnScreen] = useState('entry')
@@ -50,6 +51,15 @@ export default function App() {
       setLevelIndex(0)
       setScreen('level')
     }
+  }
+
+  // Modo demo: carga la sesión de ejemplo (5 niveles ya generados) y sus tarjetas
+  // SRS, para explorar la app desplegada sin Ollama instalado (ADR-005).
+  const handleTryDemo = async () => {
+    await loadDemoSession()
+    await seedDemoCards()
+    setLevelIndex(0)
+    setScreen('level')
   }
 
   const handleResume = async (sessionId) => {
@@ -158,6 +168,7 @@ export default function App() {
                 <ConceptEntryPage
                   onStart={handleStart}
                   onResume={handleResume}
+                  onTryDemo={handleTryDemo}
                   sessions={sessions}
                   loading={loading}
                   error={error}

@@ -14,7 +14,8 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "eval": "node scripts/eval.js",
-    "prepare": "husky"
+    "prepare": "husky",
+    "gen:demo": "node scripts/gen-demo.js"
   },
   "lint-staged": {
     "*.{js,jsx}": [

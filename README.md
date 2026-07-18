@@ -213,6 +213,12 @@ Requiere el secret `VERCEL_TOKEN` en la configuración del repositorio de GitHub
 
 ### Usar la app desplegada (el local-first se mantiene)
 
+> **¿Solo quieres echar un vistazo sin instalar nada?** En la portada, pulsa
+> **«Ver un ejemplo (sin instalar nada)»**: carga una sesión de ejemplo
+> pre-generada (concepto _la fotosíntesis_ con sus 5 niveles, quizzes y tarjetas
+> de repaso) para recorrer toda la app **sin Ollama**. La generación de conceptos
+> nuevos sí requiere Ollama, como se explica abajo.
+
 El sitio desplegado es una SPA estática: **todas las llamadas de IA van al Ollama
 de tu propia máquina**, nunca a un servidor (ADR-005). Guía completa desde cero:
 

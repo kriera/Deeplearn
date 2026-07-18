@@ -80,6 +80,18 @@ describe('useSrs (integración)', () => {
     expect(result.current.dueCards).toHaveLength(1)
   })
 
+  it('siembra las tarjetas de ejemplo (modo demo) sin llamar al modelo', async () => {
+    const { result } = renderHook(() => useSrs())
+
+    await act(async () => {
+      await result.current.seedDemoCards()
+    })
+
+    expect(result.current.cards.length).toBeGreaterThan(0)
+    expect(result.current.dueCards).toHaveLength(result.current.cards.length)
+    expect(fakeProvider.generateSRSCards).not.toHaveBeenCalled()
+  })
+
   it('carga las tarjetas persistidas al montar', async () => {
     const first = renderHook(() => useSrs())
     await act(async () => {

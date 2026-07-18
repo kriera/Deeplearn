@@ -38,5 +38,13 @@ export function useSrs() {
     [loadCards],
   )
 
-  return { cards, dueCards, rememberCard, forgetCard, generateForLevel, loadCards }
+  // Modo demo (ADR-005): siembra tarjetas de ejemplo pre-generadas para poder
+  // probar el repaso espaciado sin Ollama. Import dinámico (code-splitting).
+  const seedDemoCards = useCallback(async () => {
+    const { DEMO_CARDS } = await import('../../composition/demoData.js')
+    for (const card of DEMO_CARDS) await cardRepo.save(card)
+    await loadCards()
+  }, [loadCards])
+
+  return { cards, dueCards, rememberCard, forgetCard, generateForLevel, seedDemoCards, loadCards }
 }

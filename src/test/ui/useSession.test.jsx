@@ -338,6 +338,22 @@ describe('useSession (integración hook → StartSession/GenerateLevelContent)',
     expect(refresh).toBeNull()
   })
 
+  it('carga la sesión de ejemplo (modo demo) sin llamar al modelo', async () => {
+    const { result } = renderHook(() => useSession())
+
+    await act(async () => {
+      await result.current.loadDemoSession()
+    })
+
+    expect(result.current.currentSession.id).toBe('demo-fotosintesis')
+    expect(result.current.currentSession.levelsUnlocked).toBe(5)
+    expect(result.current.currentSession.levels.every((l) => l.status === 'ready')).toBe(true)
+    expect(result.current.sessions.some((s) => s.id === 'demo-fotosintesis')).toBe(true)
+    // Todo pre-generado: el modo demo no debe tocar el modelo
+    expect(fakeProvider.generateExplanation).not.toHaveBeenCalled()
+    expect(fakeProvider.generateQuiz).not.toHaveBeenCalled()
+  })
+
   it('carga las sesiones existentes al montar', async () => {
     fakeProvider.generateExplanation.mockResolvedValue({ explanation: 'Explicación' })
     fakeProvider.generateQuiz.mockResolvedValue({ questions: QUESTIONS })

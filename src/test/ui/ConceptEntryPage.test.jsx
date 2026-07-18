@@ -15,6 +15,7 @@ function setup(props = {}) {
     <ConceptEntryPage
       onStart={vi.fn()}
       onResume={vi.fn()}
+      onTryDemo={vi.fn()}
       sessions={[]}
       loading={false}
       error={null}
@@ -90,5 +91,14 @@ describe('ConceptEntryPage', () => {
 
     await user.click(screen.getByRole('button', { name: /tarjetas pendientes de repaso/ }))
     expect(onOpenSrs).toHaveBeenCalled()
+  })
+
+  it('permite explorar el ejemplo sin Ollama (modo demo)', async () => {
+    const user = userEvent.setup()
+    const onTryDemo = vi.fn()
+    setup({ onTryDemo })
+
+    await user.click(screen.getByRole('button', { name: /Ver un ejemplo/ }))
+    expect(onTryDemo).toHaveBeenCalled()
   })
 })

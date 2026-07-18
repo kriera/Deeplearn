@@ -5,6 +5,7 @@ import { Button } from '../atoms/Button.jsx'
 export function ConceptEntryPage({
   onStart,
   onResume,
+  onTryDemo,
   sessions,
   loading,
   error,
@@ -122,6 +123,21 @@ export function ConceptEntryPage({
           <Button onClick={handleStart} disabled={!concept.trim()} loading={loading}>
             {loading ? 'Generando… puede tardar un minuto' : 'Generar ruta de aprendizaje →'}
           </Button>
+
+          {onTryDemo && (
+            <div className="mt-4 pt-4 border-t border-slate-700/60 text-center">
+              <button
+                type="button"
+                onClick={onTryDemo}
+                className="w-full py-3 rounded-2xl border border-slate-600 text-slate-200 text-sm font-medium hover:border-teal-500/60 hover:text-teal-300 transition-colors"
+              >
+                Ver un ejemplo (sin instalar nada) →
+              </button>
+              <p className="text-xs text-slate-400 mt-2">
+                ¿Sin Ollama? Explora una sesión ya generada: 5 niveles, quiz y repaso.
+              </p>
+            </div>
+          )}
         </div>
 
         {sessions.length > 0 && (

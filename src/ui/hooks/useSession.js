@@ -132,6 +132,18 @@ export function useSession() {
     [currentSession],
   )
 
+  // Modo demo (ADR-005): carga una sesión de ejemplo pre-generada para explorar
+  // la app sin Ollama instalado. Los 5 niveles ya están listos y desbloqueados,
+  // así que no dispara ninguna generación. Import dinámico → se descarga solo al
+  // pulsar el botón (code-splitting, DT-007).
+  const loadDemoSession = useCallback(async () => {
+    const { DEMO_SESSION } = await import('../../composition/demoData.js')
+    await repo.save(DEMO_SESSION)
+    setCurrentSession(DEMO_SESSION)
+    setSessions(await repo.findAll())
+    return DEMO_SESSION
+  }, [])
+
   const restoreSession = useCallback(
     async (sessionId) => {
       const session = await repo.findById(sessionId)
@@ -167,5 +179,6 @@ export function useSession() {
     restoreSession,
     refreshSession,
     goToEntry,
+    loadDemoSession,
   }
 }
