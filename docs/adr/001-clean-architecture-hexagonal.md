@@ -41,5 +41,5 @@ Elegimos **Clean Architecture + Hexagonal (Ports & Adapters)**.
 
 ## Referencias
 
-- `~/bigschool_master/extracted_text/Introduccion A La Arquitectura De Software/`
-- `~/bigschool_master/extracted_text/Buenas Practicas Y Principios De Diseno/`
+- Máster, módulo «Introducción a la Arquitectura de Software»
+- Máster, módulo «Buenas Prácticas y Principios de Diseño»

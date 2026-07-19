@@ -58,6 +58,6 @@ falta dos condiciones, documentadas en el README:
 
 ## Referencias
 
-- `~/bigschool_master/extracted_text/Integracion De Apis Y Plataformas Ia Populares/` (rúbrica coste/privacidad/control)
-- `~/bigschool_master/extracted_text/Modelos De Ia Locales/`
+- Máster, módulo «Integración de APIs y Plataformas de IA Populares» (rúbrica coste/privacidad/control)
+- Máster, módulo «Modelos de IA Locales»
 - [ADR-002](002-ollama-local-ai-provider.md), [ADR-003](003-localstorage-persistence.md)

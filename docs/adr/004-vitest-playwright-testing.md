@@ -41,5 +41,5 @@ Elegimos **Vitest para tests unitarios e integración, Playwright para E2E**.
 
 ## Referencias
 
-- `~/bigschool_master/extracted_text/Testing/`
-- `~/bigschool_master/extracted_text/Devops Y Ci Cd/Hola-Mundo-con-Github-Actions.txt`
+- Máster, módulo «Testing»
+- Máster, módulo «DevOps y CI/CD» — Hola Mundo con GitHub Actions

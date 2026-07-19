@@ -42,5 +42,5 @@ Elegimos **Ollama Local** como provider principal, con soporte para Anthropic y 
 
 ## Referencias
 
-- `~/bigschool_master/extracted_text/Prompt Engineering Para Developers/`
-- `~/bigschool_master/extracted_text/Buenas Practicas Y Principios De Diseno/Strategy-Pattern.txt`
+- Máster, módulo «Prompt Engineering para Developers»
+- Máster, módulo «Buenas Prácticas y Principios de Diseño» — patrón Strategy

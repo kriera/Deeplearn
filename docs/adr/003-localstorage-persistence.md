@@ -42,5 +42,5 @@ Elegimos **localStorage** con Repository Pattern (LocalStorageSessionRepository)
 
 ## Referencias
 
-- `~/bigschool_master/extracted_text/Buenas Practicas Y Principios De Diseno/Repository-Pattern.txt`
-- `~/bigschool_master/extracted_text/Spec Driven Development/PPT-Introduccion-a-Spec-Driven-Development.txt`
+- Máster, módulo «Buenas Prácticas y Principios de Diseño» — patrón Repository
+- Máster, módulo «Spec-Driven Development» — introducción a Spec-Driven Development
