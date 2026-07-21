@@ -93,12 +93,17 @@ describe('ConceptEntryPage', () => {
     expect(onOpenSrs).toHaveBeenCalled()
   })
 
-  it('permite explorar el ejemplo sin Ollama (modo demo)', async () => {
+  it('ofrece un ejemplo por concepto y pasa su id al elegirlo (modo demo)', async () => {
     const user = userEvent.setup()
     const onTryDemo = vi.fn()
     setup({ onTryDemo })
 
-    await user.click(screen.getByRole('button', { name: /Ver un ejemplo/ }))
-    expect(onTryDemo).toHaveBeenCalled()
+    // Hay un botón de ejemplo por concepto disponible
+    expect(
+      screen.getByRole('button', { name: 'Ver un ejemplo: La fotosíntesis' }),
+    ).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Ver un ejemplo: La astronomía' }))
+    expect(onTryDemo).toHaveBeenCalledWith('astronomia')
   })
 })

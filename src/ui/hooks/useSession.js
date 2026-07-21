@@ -3,6 +3,7 @@ import { StartSession } from '../../application/use-cases/StartSession.js'
 import { GenerateLevelContent } from '../../application/use-cases/GenerateLevelContent.js'
 import { Session } from '../../domain/entities/Session.js'
 import { sessionRepository as repo, aiProvider } from '../../composition/container.js'
+import { findDemoConcept } from '../../composition/demoConcepts.js'
 import { toUserMessage } from '../i18n/errorMessages.js'
 
 const TOTAL_LEVELS = 5
@@ -134,10 +135,11 @@ export function useSession() {
 
   // Modo demo (ADR-005): carga una sesión de ejemplo pre-generada para explorar
   // la app sin Ollama instalado. Los 5 niveles ya están listos y desbloqueados,
-  // así que no dispara ninguna generación. Import dinámico → se descarga solo al
+  // así que no dispara ninguna generación. El concepto se resuelve en el registro
+  // y su contenido se trae con import dinámico → solo se descarga el elegido al
   // pulsar el botón (code-splitting, DT-007).
-  const loadDemoSession = useCallback(async () => {
-    const { DEMO_SESSION } = await import('../../composition/demoData.js')
+  const loadDemoSession = useCallback(async (conceptId) => {
+    const { DEMO_SESSION } = await findDemoConcept(conceptId).load()
     await repo.save(DEMO_SESSION)
     setCurrentSession(DEMO_SESSION)
     setSessions(await repo.findAll())

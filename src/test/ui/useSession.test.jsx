@@ -354,6 +354,29 @@ describe('useSession (integración hook → StartSession/GenerateLevelContent)',
     expect(fakeProvider.generateQuiz).not.toHaveBeenCalled()
   })
 
+  it('carga la sesión de ejemplo de otro concepto (astronomía) por su id', async () => {
+    const { result } = renderHook(() => useSession())
+
+    await act(async () => {
+      await result.current.loadDemoSession('astronomia')
+    })
+
+    expect(result.current.currentSession.id).toBe('demo-astronomia')
+    expect(result.current.currentSession.concept).toBe('la astronomía')
+    expect(result.current.currentSession.levelsUnlocked).toBe(5)
+    expect(result.current.currentSession.levels.every((l) => l.status === 'ready')).toBe(true)
+    // Cada nivel trae 5 preguntas y cada correct_index apunta a una opción válida
+    for (const level of result.current.currentSession.levels) {
+      expect(level.questions).toHaveLength(5)
+      for (const q of level.questions) {
+        expect(q.options).toHaveLength(4)
+        expect(q.options[q.correct_index]).toBeTypeOf('string')
+      }
+    }
+    expect(fakeProvider.generateExplanation).not.toHaveBeenCalled()
+    expect(fakeProvider.generateQuiz).not.toHaveBeenCalled()
+  })
+
   it('carga las sesiones existentes al montar', async () => {
     fakeProvider.generateExplanation.mockResolvedValue({ explanation: 'Explicación' })
     fakeProvider.generateQuiz.mockResolvedValue({ questions: QUESTIONS })

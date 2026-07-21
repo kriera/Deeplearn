@@ -53,11 +53,12 @@ export default function App() {
     }
   }
 
-  // Modo demo: carga la sesión de ejemplo (5 niveles ya generados) y sus tarjetas
-  // SRS, para explorar la app desplegada sin Ollama instalado (ADR-005).
-  const handleTryDemo = async () => {
-    await loadDemoSession()
-    await seedDemoCards()
+  // Modo demo: carga la sesión de ejemplo del concepto elegido (5 niveles ya
+  // generados) y sus tarjetas SRS, para explorar la app desplegada sin Ollama
+  // instalado (ADR-005).
+  const handleTryDemo = async (conceptId) => {
+    await loadDemoSession(conceptId)
+    await seedDemoCards(conceptId)
     setLevelIndex(0)
     setScreen('level')
   }

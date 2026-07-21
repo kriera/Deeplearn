@@ -92,6 +92,18 @@ describe('useSrs (integración)', () => {
     expect(fakeProvider.generateSRSCards).not.toHaveBeenCalled()
   })
 
+  it('siembra las tarjetas de ejemplo de otro concepto (astronomía) por su id', async () => {
+    const { result } = renderHook(() => useSrs())
+
+    await act(async () => {
+      await result.current.seedDemoCards('astronomia')
+    })
+
+    expect(result.current.cards.length).toBeGreaterThan(0)
+    expect(result.current.cards.every((c) => c.id.startsWith('demo-astronomia'))).toBe(true)
+    expect(fakeProvider.generateSRSCards).not.toHaveBeenCalled()
+  })
+
   it('carga las tarjetas persistidas al montar', async () => {
     const first = renderHook(() => useSrs())
     await act(async () => {
