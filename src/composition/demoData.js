@@ -4,7 +4,10 @@
  * (modo demo, ADR-005): los 5 niveles ya están generados y desbloqueados, así que
  * la navegación no dispara ninguna llamada al modelo.
  *
- * AUTO-GENERADO con scripts/gen-demo — no editar a mano.
+ * Base auto-generada con scripts/gen-demo y CURADA A MANO: el modelo colocaba mal
+ * `correct_index` en varias preguntas (contradecía su propia `explanation`), así que
+ * los índices se revisaron y corrigieron manualmente. Si regeneras con `npm run
+ * gen:demo`, vuelve a revisar cada correct_index antes de dar por buena la salida.
  */
 
 export const DEMO_SESSION = {
@@ -40,7 +43,7 @@ export const DEMO_SESSION = {
             'Seguiría haciendo azúcar igual',
             'Cambiará de color a rojo',
           ],
-          correct_index: 2,
+          correct_index: 0,
           explanation:
             'El agua es uno de los tres componentes necesarios; sin ella la planta no puede formar azúcar. Las otras opciones no tienen base en la explicación.',
         },
@@ -53,7 +56,7 @@ export const DEMO_SESSION = {
             'Una cocinera que prepara su propia comida',
             'Un guardia que protege la casa',
           ],
-          correct_index: 1,
+          correct_index: 2,
           explanation:
             'El texto compara a la planta con una cocinera que hace su comida; las demás analogías no aparecen ni se relacionan con la función descrita.',
         },
@@ -66,7 +69,7 @@ export const DEMO_SESSION = {
             'Lo transforma en agua',
             'Lo libera al aire para que lo respiramos',
           ],
-          correct_index: 1,
+          correct_index: 3,
           explanation:
             'Al producir azúcar, la planta suelta oxígeno al aire, que es lo que respiramos; no lo guarda, transforma ni usa para raíces según la explicación.',
         },
@@ -80,7 +83,7 @@ export const DEMO_SESSION = {
             'Comen frutas que encuentran en el suelo',
             'Necesitan luz, agua y aire para crear azúcar',
           ],
-          correct_index: 3,
+          correct_index: 2,
           explanation:
             'Las plantas no comen frutas; obtienen sus ingredientes del sol, agua y aire. Las otras opciones describen correctamente procesos mencionados.',
         },
@@ -116,7 +119,7 @@ export const DEMO_SESSION = {
             'Se mantiene igual porque el agua aporta la energía',
             'Disminuye la cantidad de glucosa formada',
           ],
-          correct_index: 1,
+          correct_index: 3,
           explanation:
             'Menos luz significa menos fotones capturados, lo que reduce la energía disponible para crear glucosa; el oxígeno no aumenta y el agua no sustituye la energía luminosa.',
         },
@@ -130,7 +133,7 @@ export const DEMO_SESSION = {
             'Los ingredientes que la planta necesita',
             'El vapor que sale al final',
           ],
-          correct_index: 0,
+          correct_index: 2,
           explanation:
             'El dióxido de carbono actúa como un ingrediente esencial que la planta incorpora, similar a los ingredientes en una receta; no es la fuente de calor, el chef ni el vapor.',
         },
@@ -144,7 +147,7 @@ export const DEMO_SESSION = {
             'Se usa para absorber más luz solar',
             'Se convierte en dióxido de carbono dentro de la hoja',
           ],
-          correct_index: 2,
+          correct_index: 1,
           explanation:
             'El oxígeno generado se libera al aire, contribuyendo a la respiración de otros organismos; no se transforma en CO₂, ni se almacena como azúcar, ni sirve para captar más luz.',
         },
@@ -157,7 +160,7 @@ export const DEMO_SESSION = {
             'Las plantas obtienen energía directamente del oxígeno que liberan',
             'El proceso depende de clorofila para absorber luz',
           ],
-          correct_index: 0,
+          correct_index: 2,
           explanation:
             'Es incorrecto decir que las plantas obtienen energía del oxígeno que liberan; la energía proviene de la luz solar transformada en glucosa, mientras que las otras opciones describen correctamente el proceso.',
         },
@@ -194,7 +197,7 @@ export const DEMO_SESSION = {
             'Se produce una disminución del ATP generado.',
             'Se detiene la fase oscura del ciclo de Calvin.',
           ],
-          correct_index: 3,
+          correct_index: 0,
           explanation:
             'El punto 2 indica que la luz roja maximiza la eficiencia fotoquímica; la opción que menciona detención del ciclo de Calvin no está respaldada por la explicación.',
         },
@@ -208,7 +211,7 @@ export const DEMO_SESSION = {
             'Disminución de la liberación de oxígeno.',
             'Incremento de la absorción de CO₂ en la fase luminosa.',
           ],
-          correct_index: 3,
+          correct_index: 2,
           explanation:
             'El hecho 3 señala que el oxígeno proviene de la fotólisis del agua; al bloquearla, la liberación de O₂ se reduce, mientras que las otras opciones no describen un efecto directo.',
         },
@@ -222,7 +225,7 @@ export const DEMO_SESSION = {
             'La fotosíntesis almacena energía, mientras que la respiración la libera.',
             'La fotosíntesis utiliza CO₂ como energía, la respiración usa O₂.',
           ],
-          correct_index: 3,
+          correct_index: 2,
           explanation:
             'El texto dice que la fotosíntesis invierte energía para sintetizar glucosa, a diferencia de la respiración que libera energía; la respuesta correcta refleja esa inversión, mientras que la opción sobre CO₂ como energía es incorrecta.',
         },
@@ -272,7 +275,7 @@ export const DEMO_SESSION = {
             'Aumento de la tasa de fotoinhibición',
             'Incremento de la eficiencia de la ruta C4',
           ],
-          correct_index: 0,
+          correct_index: 2,
           explanation:
             'La explicación indica que la luz intensa provoca fotoinhibición; la opción sobre incremento de CO₂ es incorrecta porque la disponibilidad de CO₂ no depende de la intensidad lumínica.',
         },
@@ -300,7 +303,7 @@ export const DEMO_SESSION = {
             'Se aumentaría la captación de fotones por los fotosistemas I y II',
             'Se favorecería la reducción de NADP+ a NADPH',
           ],
-          correct_index: 1,
+          correct_index: 0,
           explanation:
             'Bloquear Q_B detiene el flujo de electrones, reduciendo la producción de ATP; la opción sobre aumento de captura de fotones no está relacionada con el bloqueo de Q_B.',
         },
@@ -314,9 +317,9 @@ export const DEMO_SESSION = {
             'Reducción de la disponibilidad de CO₂ en los estomas cerrados',
             'Daño directo al fotosistema I por exceso de luz',
           ],
-          correct_index: 2,
+          correct_index: 3,
           explanation:
-            'El texto señala que el estrés hídrico disminuye la eficiencia fotosintética, principalmente por limitaciones de CO₂; la opción sobre daño al fotosistema I confunde fotoinhibición con estrés hídrico.',
+            'La creencia errónea es atribuir la caída de eficiencia a un daño directo al fotosistema I por exceso de luz (eso es fotoinhibición, no estrés hídrico); en realidad el estrés hídrico cierra los estomas y reduce la disponibilidad de CO₂.',
         },
       ],
       generationError: null,
@@ -351,7 +354,7 @@ export const DEMO_SESSION = {
             'Si su estructura es estática o si involucra dinámicas mediadas por redes de agua',
             'Si está formado por proteínas de membrana o por ácidos nucleicos',
           ],
-          correct_index: 3,
+          correct_index: 2,
           explanation:
             'El extracto menciona una controversia entre modelos estáticos y dinámicas basadas en redes de agua; las demás opciones introducen conceptos no discutidos en la explicación.',
         },
@@ -365,7 +368,7 @@ export const DEMO_SESSION = {
             'La necesidad de incluir pigmentos de clorofila en los materiales sintéticos',
             'La longitud de onda óptima para la excitación de electrones',
           ],
-          correct_index: 2,
+          correct_index: 1,
           explanation:
             'La analogía se refiere a la función protectora de la zeaxantina‑violaxantina, que es parte del debate sobre si la foto‑síntesis artificial debe reproducir los sistemas naturales o simplificarse; las otras opciones se alejan del tema central.',
         },
@@ -379,9 +382,9 @@ export const DEMO_SESSION = {
             'Cromatografía líquida de alta presión',
             'Cristalografía de rayos X a 3 Å',
           ],
-          correct_index: 2,
+          correct_index: 1,
           explanation:
-            'El texto señala que la correlación entre dinámica estructural y eficiencia aún no está resuelta y menciona 2D‑IR y simulaciones cuánticas como herramientas avanzadas; sin embargo, la opción 2D‑IR es la que mejor se alinea con validar dinámicas, mientras que la cromatografía no es relevante.',
+            'El texto señala que la correlación entre dinámica estructural y eficiencia aún no está resuelta y menciona 2D‑IR y simulaciones cuánticas como herramientas avanzadas; la opción de espectroscopía 2D‑IR es la que mejor se alinea con validar dinámicas, mientras que la cromatografía no es relevante.',
         },
         {
           id: 'l5q5',

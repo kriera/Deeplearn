@@ -18,6 +18,15 @@ for (let n = 1; n <= 5; n++) {
   const { questions } = await provider.generateQuiz(CONCEPT, n, explanation)
   levels.push({ number: n, status: 'ready', explanation, questions, generationError: null })
   console.log(`ok (${explanation.split(/\s+/).length} palabras, ${questions.length} preguntas)`)
+  for (const q of questions) {
+    const opt = q.options?.[q.correct_index]
+    if (opt === undefined) {
+      console.warn(`  ⚠ ${q.id}: correct_index ${q.correct_index} fuera de rango`)
+    } else {
+      // El índice puede ser plausible pero incorrecto: revisa contra la explicación.
+      console.warn(`  ⟳ REVISAR ${q.id}: correcta=[${q.correct_index}] "${opt}"`)
+    }
+  }
 }
 
 process.stdout.write('tarjetas SRS (nivel 1)… ')
@@ -66,7 +75,9 @@ const banner = `/**
  * (modo demo, ADR-005): los 5 niveles ya están generados y desbloqueados, así que
  * la navegación no dispara ninguna llamada al modelo.
  *
- * AUTO-GENERADO con scripts/gen-demo — no editar a mano.
+ * Base auto-generada con scripts/gen-demo. AVISO: el modelo suele colocar mal
+ * \`correct_index\` (contradice su propia \`explanation\`). Revisa a mano cada
+ * correct_index antes de dar por buena la salida — la última versión se curó así.
  */
 `
 const out = `${banner}
