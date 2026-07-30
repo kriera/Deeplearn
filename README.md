@@ -20,7 +20,7 @@ Motor de aprendizaje Feynman que genera explicaciones en 5 niveles y quizzes par
 - **Quiz por nivel**: 5 preguntas tipo test generadas por IA en cada nivel; acierta 4/5 para desbloquear el siguiente.
 - **Re-explicación adaptativa**: si suspendes un quiz, el motor re-explica el nivel con una analogía distinta, centrada en tus áreas débiles.
 - **Generación progresiva**: la explicación se muestra en cuanto está lista y el quiz se genera en segundo plano mientras lees; el siguiente nivel se prepara mientras ves tu resultado.
-- **Consciente del idioma**: los conceptos escritos en español generan contenido íntegramente en español; los conceptos en inglés, en inglés.
+- **Siempre en castellano**: todo el contenido generado —explicaciones, preguntas, opciones y tarjetas— sale en español, aunque escribas el concepto en otro idioma («machine learning», «black holes»).
 - **Repaso espaciado (SRS)**: superar un nivel genera tarjetas de repaso programadas con un algoritmo inspirado en SM-2 (variante binaria: recordada/olvidada sobre el factor de facilidad e intervalo); repásalas desde la pantalla de inicio o al completar un concepto.
 - **Persistencia de sesiones**: las sesiones viven en localStorage; retoma cualquier concepto reciente desde la pantalla de inicio.
 - **Autoevaluación**: valora tu comprensión y deja feedback al completar un concepto.

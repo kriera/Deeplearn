@@ -5,29 +5,28 @@
  */
 
 import { Level } from '../../../domain/entities/Level.js'
-import { detectLanguage, outputLanguageDirective } from './language.js'
+import { outputLanguageDirective } from './language.js'
 
 export function buildSRSPrompt(concept, levelLabel, levelNumber) {
   const level = Level.create(levelNumber)
-  const lang = detectLanguage(concept)
 
-  return `You are a Feynman learning engine. The user just passed the "${levelLabel}" level (level ${levelNumber}) of "${concept}".
-Audience for this level: ${level.audience}.
+  return `Eres un motor de aprendizaje Feynman. El usuario acaba de superar el nivel "${levelLabel}" (nivel ${levelNumber}) de "${concept}".
+Audiencia de este nivel: ${level.audience}.
 
-Generate 5 spaced-repetition flash cards that reinforce the key ideas from this level.
-Cards must use vocabulary and concepts appropriate for this level's audience.
+Genera 5 tarjetas de repetición espaciada que refuercen las ideas clave de este nivel.
+Las tarjetas deben usar el vocabulario y los conceptos apropiados para la audiencia de este nivel.
 
-Return ONLY valid JSON:
+Devuelve SOLO JSON válido:
 {
   "cards": [
     { "id": "l${levelNumber}c1", "front": string, "back": string },
-    ... (5 total)
+    ... (5 en total)
   ]
 }
 
-Card rules:
-- front: a question or cue (15 words or fewer, phrased at this level's vocabulary)
-- back: the answer (40 words or fewer, using the same vocabulary)
-No markdown, no preamble, no code fences.
-${outputLanguageDirective(lang)}`
+Reglas de las tarjetas:
+- front: una pregunta o pista (15 palabras o menos, con el vocabulario de este nivel)
+- back: la respuesta (40 palabras o menos, con el mismo vocabulario)
+Sin markdown, sin preámbulos, sin bloques de código.
+${outputLanguageDirective()}`
 }

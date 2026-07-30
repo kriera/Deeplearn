@@ -2,62 +2,38 @@
  * LevelPrompt — Construye prompts para generar explicaciones por nivel.
  *
  * Prompt Engineering (Módulo 5): Prompts específicos con contexto, audiencia y reglas.
+ * El prompt va íntegramente en español para que no compita con la directiva de
+ * idioma; las claves del JSON de salida se mantienen en inglés porque son el
+ * contrato con BaseAiProvider y con los repositorios.
  */
 
 import { Level } from '../../../domain/entities/Level.js'
-import { detectLanguage, outputLanguageDirective } from './language.js'
+import { outputLanguageDirective } from './language.js'
 
-const LANG_INSTRUCTIONS = {
-  es: {
-    role: 'Eres un motor de aprendizaje Feynman.',
-    action: 'Genera SOLO una explicación compacta',
-    audience: 'Audiencia',
-    rules: 'Reglas de explicación',
-    contentRules: 'Reglas de contenido',
-    contentItems: [
-      'Mantén la explicación entre 90 y 150 palabras.',
-      'Incluye al menos 3 hechos o relaciones concretas y comprobables.',
-      'No incluyas preguntas de quiz, listas, resúmenes, markdown ni comentarios extra.',
-    ],
-    json: 'Devuelve SOLO JSON válido',
-    noMarkdown: 'Sin markdown, sin preámbulos, sin bloques de código.',
-  },
-  en: {
-    role: 'You are a Feynman learning engine.',
-    action: 'Generate ONLY a compact level',
-    audience: 'Audience',
-    rules: 'Explanation rules',
-    contentRules: 'Content rules',
-    contentItems: [
-      'Keep the explanation between 90 and 150 words.',
-      'Include at least 3 concrete, testable facts or relationships.',
-      'Do not include quiz questions, bullet lists, summaries, markdown, or extra commentary.',
-    ],
-    json: 'Return ONLY valid JSON',
-    noMarkdown: 'No markdown, no preamble, no code fences.',
-  },
-}
+const CONTENT_RULES = [
+  'Mantén la explicación entre 90 y 150 palabras.',
+  'Incluye al menos 3 hechos o relaciones concretas y comprobables.',
+  'No incluyas preguntas de quiz, listas, resúmenes, markdown ni comentarios extra.',
+]
 
 export function buildLevelExplanationPrompt(concept, levelNumber) {
   const level = Level.create(levelNumber)
-  const lang = detectLanguage(concept)
-  const t = LANG_INSTRUCTIONS[lang]
 
-  return `${t.role} ${t.action} ${levelNumber} ("${level.label}") explanation for "${concept}".
+  return `Eres un motor de aprendizaje Feynman. Genera SOLO una explicación compacta del nivel ${levelNumber} ("${level.label}") para "${concept}".
 
-${t.audience}: ${level.audience}
-${t.rules}:
+Audiencia: ${level.audience}
+Reglas de explicación:
 ${level.rules.map((r, i) => `  ${i + 1}. ${r}`).join('\n')}
 
-${t.contentRules}:
-${t.contentItems.map((r) => `  - ${r}`).join('\n')}
+Reglas de contenido:
+${CONTENT_RULES.map((r) => `  - ${r}`).join('\n')}
 
-${t.json}:
+Devuelve SOLO JSON válido:
 {
   "level": ${levelNumber},
   "label": "${level.label}",
-  "explanation": string (90-150 words)
+  "explanation": string (90-150 palabras)
 }
-${t.noMarkdown}
-${outputLanguageDirective(lang)}`
+Sin markdown, sin preámbulos, sin bloques de código.
+${outputLanguageDirective()}`
 }

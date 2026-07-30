@@ -3,7 +3,8 @@
  *
  * Golden dataset de conceptos fijos; se genera contenido con el modelo REAL y se
  * validan aserciones programáticas sobre el contrato en 4 suites:
- *   A) Explicación + quiz del nivel 1 (Elemental) — 8 conceptos (4 es / 4 en)
+ *   A) Explicación + quiz del nivel 1 (Elemental) — 8 conceptos (4 escritos en
+ *      castellano, 4 en inglés; todos deben generar contenido en castellano)
  *   B) Explicación + quiz del nivel 5 (Experto) — 4 conceptos + contraste entre niveles
  *   C) Re-explicación tras fallo — 2 conceptos con áreas débiles simuladas
  *   D) Tarjetas SRS — 2 conceptos
@@ -24,23 +25,26 @@ import { OllamaProvider } from '../src/infrastructure/ai/providers/OllamaProvide
 const BASE_URL = process.env.VITE_AI_BASE_URL || 'http://localhost:11434'
 const MODEL = process.env.VITE_AI_MODEL || 'gpt-oss:120b-cloud'
 
-// Golden dataset: casos deterministas para la heurística de idioma (es/en)
+// Golden dataset: la app es monolingüe en castellano, así que TODOS los casos
+// esperan salida en español. Los conceptos escritos en inglés y los españoles
+// sin tildes son deliberados: verifican que el idioma del concepto ya no
+// arrastra al del contenido generado.
 const LEVEL1_DATASET = [
   { concept: 'fotosíntesis', lang: 'es' },
   { concept: 'la revolución francesa', lang: 'es' },
   { concept: 'el sistema solar', lang: 'es' },
-  { concept: 'teoría de la relatividad', lang: 'es' },
-  { concept: 'photosynthesis', lang: 'en' },
-  { concept: 'black holes', lang: 'en' },
-  { concept: 'supply and demand', lang: 'en' },
-  { concept: 'quantum entanglement', lang: 'en' },
+  { concept: 'relatividad general', lang: 'es' },
+  { concept: 'photosynthesis', lang: 'es' },
+  { concept: 'black holes', lang: 'es' },
+  { concept: 'supply and demand', lang: 'es' },
+  { concept: 'quantum entanglement', lang: 'es' },
 ]
 
 const LEVEL5_DATASET = [
   { concept: 'fotosíntesis', lang: 'es' },
   { concept: 'la revolución francesa', lang: 'es' },
-  { concept: 'black holes', lang: 'en' },
-  { concept: 'quantum entanglement', lang: 'en' },
+  { concept: 'black holes', lang: 'es' },
+  { concept: 'quantum entanglement', lang: 'es' },
 ]
 
 const REEXPLAIN_DATASET = [
@@ -54,14 +58,14 @@ const REEXPLAIN_DATASET = [
   },
   {
     concept: 'black holes',
-    lang: 'en',
+    lang: 'es',
     weakAreas: [{ question: 'What happens at the event horizon of a black hole?' }],
   },
 ]
 
 const SRS_DATASET = [
   { concept: 'el sistema solar', lang: 'es' },
-  { concept: 'supply and demand', lang: 'en' },
+  { concept: 'supply and demand', lang: 'es' },
 ]
 
 /* ------------------------------ helpers ------------------------------ */
@@ -310,7 +314,8 @@ async function main() {
     '## Metodología',
     '',
     'Cuatro suites contra el modelo real: (A) explicación + quiz del nivel Elemental para 8',
-    'conceptos (4 es / 4 en); (B) nivel Experto para 4 conceptos, verificando además que la',
+    'conceptos (4 escritos en castellano y 4 en inglés; todos deben generar contenido en',
+    'castellano); (B) nivel Experto para 4 conceptos, verificando además que la',
     'explicación difiere de la elemental y midiendo complejidad por frase; (C) re-explicación',
     'con áreas débiles simuladas; (D) tarjetas SRS. Checks por caso: contrato JSON, 5 preguntas',
     'no repetidas × 4 opciones únicas, `correct_index` válido y distribuido, ids únicos,',

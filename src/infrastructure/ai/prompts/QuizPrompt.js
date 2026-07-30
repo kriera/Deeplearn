@@ -2,63 +2,42 @@
  * QuizPrompt — Construye prompts para generar quizzes por nivel.
  *
  * Prompt Engineering (Módulo 5): Prompts con contexto y reglas de calidad.
+ * El prompt va íntegramente en español; `correct_index` y los índices 0-3 se
+ * conservan literales porque son el contrato del JSON de salida.
  */
 
 import { Level } from '../../../domain/entities/Level.js'
-import { detectLanguage, outputLanguageDirective } from './language.js'
+import { outputLanguageDirective } from './language.js'
 
 export const QUIZ_QUALITY_RULES = [
-  'Write exactly 5 distinct multiple-choice questions.',
-  'Each question must test a DIFFERENT idea from the explanation.',
-  'Vary question types: direct recall, cause/effect, analogy application, "what would happen if", and misconception check.',
-  'Wrong options must be plausible: similar length and tone to the correct answer.',
-  'Never use joke answers, "all of the above", "none of the above", or options that are obviously wrong.',
-  'Do NOT copy sentences verbatim from the explanation; paraphrase in fresh wording.',
-  'Every question must be answerable using ONLY the explanation — no outside knowledge.',
-  'Spread correct_index across 0, 1, 2, and 3.',
-  'Per-question explanation: restate why the correct answer fits and why one tempting wrong choice fails (1-2 sentences).',
+  'Escribe exactamente 5 preguntas tipo test distintas.',
+  'Cada pregunta debe evaluar una idea DIFERENTE de la explicación.',
+  'Varía el tipo de pregunta: recuerdo directo, causa/efecto, aplicación de la analogía, "qué pasaría si" y detección de un error habitual.',
+  'Las opciones incorrectas deben ser plausibles: longitud y tono similares a la correcta.',
+  'Nunca uses respuestas en broma, "todas las anteriores", "ninguna de las anteriores" ni opciones obviamente falsas.',
+  'NO copies frases literales de la explicación; parafrasea con palabras nuevas.',
+  'Toda pregunta debe poder responderse usando SOLO la explicación, sin conocimientos externos.',
+  'Reparte correct_index entre 0, 1, 2 y 3.',
+  'Aclaración por pregunta: explica por qué encaja la respuesta correcta y por qué falla una opción incorrecta tentadora (1-2 frases).',
 ]
-
-const LANG_INSTRUCTIONS = {
-  es: {
-    role: 'Eres un motor de aprendizaje Feynman.',
-    action: 'Crea el quiz',
-    contract: 'Contrato del quiz',
-    source: 'Usa SOLO esta explicación como fuente de verdad',
-    rules: 'Reglas de calidad del quiz',
-    json: 'Devuelve SOLO JSON válido',
-    noMarkdown: 'Sin markdown, sin preámbulos, sin bloques de código.',
-  },
-  en: {
-    role: 'You are a Feynman learning engine.',
-    action: 'Create the quiz',
-    contract: 'Level quiz contract',
-    source: 'Use ONLY this explanation as your source of truth',
-    rules: 'Quiz quality rules',
-    json: 'Return ONLY valid JSON',
-    noMarkdown: 'No markdown, no preamble, no code fences.',
-  },
-}
 
 export function buildLevelQuizPrompt(concept, levelNumber, explanation) {
   const level = Level.create(levelNumber)
-  const lang = detectLanguage(concept)
-  const t = LANG_INSTRUCTIONS[lang]
 
-  return `${t.role} ${t.action} for level ${levelNumber} ("${level.label}") of "${concept}".
+  return `Eres un motor de aprendizaje Feynman. Crea el quiz del nivel ${levelNumber} ("${level.label}") de "${concept}".
 
-Audience: ${level.audience}
-${t.contract}: ${level.quizRules}
+Audiencia: ${level.audience}
+Contrato del quiz: ${level.quizRules}
 
-${t.source}:
+Usa SOLO esta explicación como fuente de verdad:
 ---
 ${explanation}
 ---
 
-${t.rules}:
+Reglas de calidad del quiz:
 ${QUIZ_QUALITY_RULES.map((r, i) => `  ${i + 1}. ${r}`).join('\n')}
 
-${t.json}:
+Devuelve SOLO JSON válido:
 {
   "questions": [
     {
@@ -68,9 +47,9 @@ ${t.json}:
       "correct_index": 0|1|2|3,
       "explanation": string
     },
-    ... (5 total)
+    ... (5 en total)
   ]
 }
-${t.noMarkdown}
-${outputLanguageDirective(lang)}`
+Sin markdown, sin preámbulos, sin bloques de código.
+${outputLanguageDirective()}`
 }

@@ -1,34 +1,20 @@
 /**
- * language — Detección de idioma del concepto y directiva de idioma de salida.
+ * language — Directiva de idioma de salida.
  *
- * Prompt Engineering (Módulo 5): el idioma de la respuesta se exige de forma
- * explícita en el prompt; la heurística solo decide qué directiva aplicar.
+ * DeepLearn es una app monolingüe en castellano (UI, `<html lang="es">`,
+ * sugerencias y mensajes de error). El contenido generado debe salir SIEMPRE
+ * en español, aunque el usuario escriba el concepto en otro idioma.
+ *
+ * Prompt Engineering (Módulo 5): el idioma se exige de forma explícita en el
+ * prompt, nunca se infiere. Una heurística previa deducía el idioma de la
+ * cadena del concepto y caía en inglés por defecto, de modo que conceptos
+ * españoles sin tildes ("Oferta y demanda", "Relatividad general") pedían
+ * inglés explícitamente al modelo.
  * DRY (Módulo 1): única implementación compartida por todos los prompts.
  */
 
-export function detectLanguage(concept) {
-  const sample = concept.toLowerCase()
-  // Match articles at start of string OR surrounded by spaces
-  const spanishMarkers = ['á', 'é', 'í', 'ó', 'ú', 'ñ', 'ü', '¿', '¡']
-  const spanishWords = [
-    ' el ',
-    ' la ',
-    ' los ',
-    ' las ',
-    ' es ',
-    ' una ',
-    ' que ',
-    ' por ',
-    ' del ',
-  ]
-  const startsWithArticle = /^(el|la|los|las|un|una|unos|unas)\s/i.test(concept.trim())
-  const hasSpanishChar = spanishMarkers.some((m) => sample.includes(m))
-  const hasSpanishWord = spanishWords.some((w) => sample.includes(w))
-  return hasSpanishChar || hasSpanishWord || startsWithArticle ? 'es' : 'en'
-}
+export const OUTPUT_LANGUAGE = 'es'
 
-export function outputLanguageDirective(lang) {
-  return lang === 'es'
-    ? 'IMPORTANTE: escribe TODO el contenido generado (explicaciones, preguntas, opciones y aclaraciones) íntegramente en español.'
-    : 'IMPORTANT: write ALL generated content (explanations, questions, options, and clarifications) entirely in English.'
+export function outputLanguageDirective() {
+  return 'IMPORTANTE: escribe TODO el contenido generado (explicaciones, preguntas, opciones y aclaraciones) íntegramente en español, aunque el concepto esté escrito en otro idioma.'
 }

@@ -5,43 +5,42 @@
  */
 
 import { Level } from '../../../domain/entities/Level.js'
-import { detectLanguage, outputLanguageDirective } from './language.js'
+import { outputLanguageDirective } from './language.js'
 import { QUIZ_QUALITY_RULES } from './QuizPrompt.js'
 
 export function buildReExplainPrompt(concept, levelNumber, weakAreas) {
   const level = Level.create(levelNumber)
-  const lang = detectLanguage(concept)
   const summary =
     weakAreas && weakAreas.length > 0
       ? weakAreas.map((w) => `- ${w.question || w}`).join('\n')
-      : 'The learner struggled with this level.'
+      : 'El estudiante ha tenido dificultades con este nivel.'
 
-  return `You are a Feynman learning engine. The user failed the "${level.label}" level gate for the concept "${concept}".
-Their struggle summary:
+  return `Eres un motor de aprendizaje Feynman. El usuario ha suspendido la prueba del nivel "${level.label}" para el concepto "${concept}".
+Resumen de sus dificultades:
 ${summary}
 
-Write a SIMPLER re-explanation and 5 new questions for level ${levelNumber} ("${level.label}").
-Focus especially on the exact weak areas above. Do not repeat the same wording from the failed questions.
-SIMPLER means easier words, shorter sentences and clearer analogies — NOT a shorter text.
-The re-explanation must still be complete and self-contained: between 150 and 250 words.
+Escribe una re-explicación MÁS SIMPLE y 5 preguntas nuevas para el nivel ${levelNumber} ("${level.label}").
+Céntrate especialmente en las áreas débiles de arriba. No repitas la misma formulación de las preguntas falladas.
+MÁS SIMPLE significa palabras más fáciles, frases más cortas y analogías más claras — NO un texto más corto.
+La re-explicación debe seguir siendo completa y autocontenida: entre 150 y 250 palabras.
 
-Audience: ${level.audience}
-Explanation rules:
+Audiencia: ${level.audience}
+Reglas de explicación:
 ${level.rules.map((r, i) => `  ${i + 1}. ${r}`).join('\n')}
-  Extra rule: Use a DIFFERENT analogy or example than the first attempt.
+  Regla extra: Usa una analogía o un ejemplo DIFERENTE al del primer intento.
 
-Quiz quality rules:
+Reglas de calidad del quiz:
 ${QUIZ_QUALITY_RULES.map((r, i) => `  ${i + 1}. ${r}`).join('\n')}
 
-Return ONLY valid JSON:
+Devuelve SOLO JSON válido:
 {
-  "explanation": string (150-250 words, simpler than before, different analogy/example),
+  "explanation": string (150-250 palabras, más simple que antes, con otra analogía o ejemplo),
   "questions": [
     { "id": "l${levelNumber}q1", "question": string, "options": [string,string,string,string],
       "correct_index": 0|1|2|3, "explanation": string },
-    ... (5 total)
+    ... (5 en total)
   ]
 }
-No markdown, no preamble, no code fences.
-${outputLanguageDirective(lang)}`
+Sin markdown, sin preámbulos, sin bloques de código.
+${outputLanguageDirective()}`
 }

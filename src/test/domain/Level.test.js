@@ -24,10 +24,10 @@ describe('Level', () => {
 
   it('returns the audience description for each level', () => {
     const level1 = Level.create(1)
-    expect(level1.audience).toContain('6-year-old')
+    expect(level1.audience).toContain('6 años')
 
     const level5 = Level.create(5)
-    expect(level5.audience).toContain('researcher')
+    expect(level5.audience).toContain('investigador')
   })
 
   it('is frozen (immutable)', () => {

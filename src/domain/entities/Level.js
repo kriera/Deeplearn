@@ -5,73 +5,77 @@
  * SRP (Módulo 1): Única responsabilidad: modelar un nivel de aprendizaje.
  */
 
+// `label` es un identificador interno (se persiste dentro de las sesiones en
+// localStorage); la UI muestra los nombres en castellano vía levelLabel(number).
+// El resto del contrato va en español: se interpola en los prompts y el
+// contenido generado debe salir siempre en castellano.
 const LEVEL_CONTRACTS = [
   {
     level: 1,
     label: 'Elemental',
-    audience: 'a curious 6-year-old child with no prior knowledge',
+    audience: 'un niño de 6 años con curiosidad y sin conocimientos previos',
     rules: [
-      'Use ONLY everyday words a 6-year-old would know.',
-      'NO domain-specific vocabulary whatsoever.',
-      'Use exactly one short analogy from everyday life (toys, food, animals, play).',
-      'Keep sentences short. Maximum 15 words per sentence.',
-      'Explain the single core idea only. Do not cover subtopics.',
+      'Usa SOLO palabras cotidianas que entendería un niño de 6 años.',
+      'NADA de vocabulario técnico o específico del dominio.',
+      'Usa exactamente una analogía corta de la vida diaria (juguetes, comida, animales, juegos).',
+      'Frases cortas. Máximo 15 palabras por frase.',
+      'Explica únicamente la idea central. No trates subtemas.',
     ],
     quizRules:
-      'Questions MUST use the same everyday words from the explanation. Test the analogy and the single core idea ONLY. No domain vocabulary.',
+      'Las preguntas DEBEN usar las mismas palabras cotidianas de la explicación. Evalúa SOLO la analogía y la idea central. Nada de vocabulario técnico.',
   },
   {
     level: 2,
     label: 'Basic',
-    audience: 'a curious 14-year-old high school student with general knowledge',
+    audience: 'un estudiante de secundaria de 14 años con curiosidad y cultura general',
     rules: [
-      'Introduce at most 3 domain-specific terms. Define each term the first time you use it in plain language.',
-      'Do NOT assume knowledge from Level 3, 4, or 5.',
-      'Use one concrete real-world example (not the Level 1 analogy).',
-      'Connect the concept to something the student already knows from school.',
-      'You may use slightly longer sentences than Level 1, but keep them clear.',
+      'Introduce como máximo 3 términos técnicos. Define cada término en lenguaje llano la primera vez que lo uses.',
+      'NO des por sabido nada de los niveles 3, 4 o 5.',
+      'Usa un ejemplo concreto del mundo real (distinto de la analogía del nivel 1).',
+      'Conecta el concepto con algo que el estudiante ya conozca del colegio.',
+      'Puedes usar frases algo más largas que en el nivel 1, pero mantenlas claras.',
     ],
     quizRules:
-      'Questions must ONLY test the 3 defined terms and the example introduced. Do not test anything beyond what the explanation covered. Use the same plain definitions.',
+      'Las preguntas deben evaluar SOLO los 3 términos definidos y el ejemplo introducido. No preguntes nada que la explicación no haya cubierto. Usa las mismas definiciones llanas.',
   },
   {
     level: 3,
     label: 'Medium',
-    audience: 'a college freshman who has completed one semester of the relevant subject',
+    audience: 'un estudiante de primer año de carrera que ha cursado un semestre de la materia',
     rules: [
-      'Use standard academic vocabulary for the field. You do NOT need to define common domain terms.',
-      'Introduce the formal mechanism or process behind the concept.',
-      'Include one comparison/contrast with a related concept.',
-      'Do NOT assume graduate-level or professional knowledge.',
+      'Usa el vocabulario académico estándar del campo. NO hace falta que definas los términos habituales del dominio.',
+      'Introduce el mecanismo o proceso formal que hay detrás del concepto.',
+      'Incluye una comparación o contraste con un concepto relacionado.',
+      'NO des por supuestos conocimientos de posgrado ni profesionales.',
     ],
     quizRules:
-      'Questions test the formal mechanism, the academic vocabulary used, and the comparison introduced. Nothing beyond the explanation.',
+      'Las preguntas evalúan el mecanismo formal, el vocabulario académico empleado y la comparación introducida. Nada más allá de la explicación.',
   },
   {
     level: 4,
     label: 'Advanced',
-    audience: 'a working professional or senior undergraduate in the relevant field',
+    audience: 'un profesional en ejercicio o un estudiante de último curso del campo',
     rules: [
-      'Assume full domain fluency. Use technical vocabulary freely.',
-      'Cover edge cases, nuances, and known limitations of the concept.',
-      'Reference the underlying model, framework, or theory.',
-      'Include a real-world professional implication or failure mode.',
+      'Da por supuesto un dominio pleno del campo. Usa vocabulario técnico con libertad.',
+      'Cubre casos límite, matices y limitaciones conocidas del concepto.',
+      'Haz referencia al modelo, marco teórico o teoría subyacente.',
+      'Incluye una implicación profesional real o un modo de fallo.',
     ],
     quizRules:
-      'Questions test the edge cases, limitations, theoretical underpinnings, and professional implications discussed. Nothing beyond the explanation.',
+      'Las preguntas evalúan los casos límite, las limitaciones, los fundamentos teóricos y las implicaciones profesionales tratadas. Nada más allá de la explicación.',
   },
   {
     level: 5,
     label: 'Expert',
-    audience: 'a researcher or senior practitioner at the cutting edge of the field',
+    audience: 'un investigador o profesional senior en la frontera del campo',
     rules: [
-      'Assume mastery of all prior levels.',
-      'Discuss open research questions, unresolved debates, or active frontiers.',
-      'Cover tradeoffs between competing approaches or interpretations.',
-      'Reference the state of the art and what remains unsolved.',
+      'Da por supuesto el dominio de todos los niveles anteriores.',
+      'Trata preguntas de investigación abiertas, debates sin resolver o fronteras activas.',
+      'Cubre los compromisos entre enfoques o interpretaciones que compiten entre sí.',
+      'Haz referencia al estado del arte y a lo que sigue sin resolver.',
     ],
     quizRules:
-      'Questions probe open questions, tradeoffs, interpretations, and frontier topics mentioned. Nothing beyond the explanation.',
+      'Las preguntas indagan en las cuestiones abiertas, los compromisos, las interpretaciones y los temas de frontera mencionados. Nada más allá de la explicación.',
   },
 ]
 

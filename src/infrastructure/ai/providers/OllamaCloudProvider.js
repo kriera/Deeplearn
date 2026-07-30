@@ -33,7 +33,11 @@ export class OllamaCloudProvider extends BaseAiProvider {
     return {
       model: this.model,
       messages: [
-        { role: 'system', content: 'You are a JSON API. Respond ONLY with valid JSON.' },
+        {
+          role: 'system',
+          content:
+            'Eres una API JSON. Responde SOLO con JSON válido. Todo el texto que generes debe estar en español.',
+        },
         { role: 'user', content: prompt },
       ],
       stream: false,

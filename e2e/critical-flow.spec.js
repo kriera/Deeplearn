@@ -32,7 +32,7 @@ function ollamaReply(json) {
 async function mockModel(page) {
   await page.route(OLLAMA_CHAT, async (route) => {
     const prompt = route.request().postDataJSON()?.messages?.at(-1)?.content ?? ''
-    if (prompt.includes('SIMPLER re-explanation')) {
+    if (prompt.includes('re-explicación MÁS SIMPLE')) {
       await route.fulfill(
         ollamaReply({ explanation: 'Re-explicación más sencilla.', questions: quizQuestions() }),
       )
